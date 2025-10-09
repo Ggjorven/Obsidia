@@ -1,0 +1,9 @@
+[submodule "Vendor/Photon/Photon"]
+	path = Vendor/Photon/Photon
+	url = https://github.com/Ggjorven/Photon.git
+[submodule "Vendor/Nano/Nano"]
+	path = Vendor/Nano/Nano
+	url = https://github.com/Ggjorven/Nano.git
+[submodule "Vendor/Obsidian/Obsidian"]
+	path = Vendor/Obsidian/Obsidian
+	url = https://github.com/Ggjorven/Obsidian

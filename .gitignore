@@ -34,6 +34,7 @@
 
 # Binaries
 /bin/
+/bin-int/
 
 # Makefiles
 make

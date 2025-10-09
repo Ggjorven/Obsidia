@@ -62,15 +62,46 @@ OBSIDIAN_GRAPHICS_API = OBSIDIAN_GRAPHICS_API or "vulkan"
 local Dependencies =
 {
     -- External dependencies
-	-- TODO: Obsidia
+    Nano = 
+    {
+        IncludeDir = "Vendor/Nano/Nano/Nano/include"
+    },
+
+	Obsidian = local_require("Vendor/Obsidian/Obsidian/Dependencies.lua").Obsidian,
+	Photon = local_require("Vendor/Photon/Photon/Dependencies.lua").Photon,
 
     -- Internal dependencies
     Obsidia = 
     {
-        LibName = "Obsidia",
-		IncludeDir = this_directory() .. "/Obsidia/Source"
+		IncludeDir = {},
+        LibDir = {},
+        LibName = {},
+        PostBuildCommands = {}
     }
 }
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+-- Append Dependencies
+------------------------------------------------------------------------------
+-- IncludeDirs
+append_to_table(Dependencies.Obsidia.IncludeDir, this_directory() .. "Obsidia/Source/")
+append_to_table(Dependencies.Obsidia.IncludeDir, Dependencies.Nano.IncludeDir)
+append_to_table(Dependencies.Obsidia.IncludeDir, Dependencies.Obsidian.IncludeDir)
+append_to_table(Dependencies.Obsidia.IncludeDir, Dependencies.Photon.IncludeDir)
+
+-- LibDir
+append_to_table(Dependencies.Obsidia.LibDir, Dependencies.Obsidian.LibDir)
+append_to_table(Dependencies.Obsidia.LibDir, Dependencies.Photon.LibDir)
+
+-- LibNames
+append_to_table(Dependencies.Obsidia.LibName, "Obsidia")
+append_to_table(Dependencies.Obsidia.LibName, Dependencies.Obsidian.LibName)
+append_to_table(Dependencies.Obsidia.LibName, Dependencies.Photon.LibName)
+
+-- PostBuildCommands
+append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Obsidian.PostBuildCommands)
+append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Photon.PostBuildCommands)
 ------------------------------------------------------------------------------
 
 return Dependencies

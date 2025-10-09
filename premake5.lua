@@ -24,6 +24,12 @@ OBSIDIAN_GRAPHICS_API = _OPTIONS["gfxapi"] or "vulkan"
 function local_require(path)
 	return dofile(path)
 end
+
+function this_directory()
+    local str = debug.getinfo(2, "S").source:sub(2)
+	local path = str:match("(.*/)")
+    return path:gsub("\\", "/") -- Replace \\ with /
+end
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
@@ -56,7 +62,7 @@ OutputDir = "%{cfg.buildcfg}-%{cfg.system}"
 
 workspace "Obsidia"
 	architecture "x86_64"
-	startproject "Sandbox"
+	startproject "Editor"
 
 	configurations
 	{
@@ -71,7 +77,8 @@ workspace "Obsidia"
 	}
 
 group "Dependencies"
-	-- TODO: Obsidian
+	include "Vendor/Obsidian/Obsidian/premake5-external"
+	include "Vendor/Photon/Photon/premake5-external"
 group ""
 
 group "Obsidia"
@@ -79,4 +86,5 @@ group "Obsidia"
 group ""
 
 include "Programs/Editor"
+include "Programs/Runtime"
 ------------------------------------------------------------------------------

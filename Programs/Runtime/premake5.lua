@@ -1,9 +1,9 @@
-local Dependencies = local_require("../Dependencies.lua")
+local Dependencies = local_require("../../Dependencies.lua")
 local MacOSVersion = MacOSVersion or "14.5"
 local OutputDir = OutputDir or "%{cfg.buildcfg}-%{cfg.system}"
 
-project "Obsidia"
-	kind "StaticLib"
+project "Runtime"
+	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++23"
 	staticruntime "On"
@@ -15,16 +15,12 @@ project "Obsidia"
 	targetdir ("%{wks.location}/bin/" .. OutputDir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin-int/" .. OutputDir .. "/%{prj.name}")
 
-	-- Note: VS2022/Make only need the pchheader filename
-	pchheader "obpch.h"
-	pchsource "Source/Obsidia/obpch.cpp"
-
 	files
 	{
-		"Source/Obsidia/**.h",
-		"Source/Obsidia/**.hpp",
-		"Source/Obsidia/**.inl",
-		"Source/Obsidia/**.cpp"
+		"Source/**.h",
+		"Source/**.hpp",
+		"Source/**.inl",
+		"Source/**.cpp"
 	}
 
 	defines
@@ -38,11 +34,9 @@ project "Obsidia"
 		"Source",
 	}
 
-	includedirs(Dependencies.Obsidia.IncludeDir) -- Note: Includes Source/Obsidia
-	libdirs(Dependencies.Obsidia.LibDir)
-	links(remove_from_table(Dependencies.Obsidia.LibName, "Obsidia"))
-	--postbuildcommands(Dependencies.Obsidia.PostBuildCommands)
- 
+	includedirs(Dependencies.Obsidia.IncludeDir)
+	links(Dependencies.Obsidia.LibName)
+
 	filter "system:windows"
 		systemversion "latest"
 		staticruntime "on"
@@ -65,9 +59,6 @@ project "Obsidia"
 		buildoptions { "/Zc:preprocessor" }
 
 	filter "action:xcode*"
-		-- Note: XCode only needs the full pchheader path
-		pchheader "Source/Obsidian/obpch.h"
-
 		-- Note: If we don't add the header files to the externalincludedirs
 		-- we can't use <angled> brackets to include files.
 		externalincludedirs(includedirs())
