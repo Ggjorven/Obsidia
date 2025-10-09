@@ -52,3 +52,5 @@ DS_Store
 # Other
 **/.cache
 compile_commands.json
+
+libcrypto-3-x64.dll
