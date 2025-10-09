@@ -64,7 +64,7 @@ local Dependencies =
     -- External dependencies
     Nano = 
     {
-        IncludeDir = "Vendor/Nano/Nano/Nano/include"
+        IncludeDir = local_require("Vendor/Photon/Photon/Dependencies.lua").Nano.IncludeDir
     },
 
 	Obsidian = local_require("Vendor/Obsidian/Obsidian/Dependencies.lua").Obsidian,
@@ -87,21 +87,21 @@ local Dependencies =
 -- IncludeDirs
 append_to_table(Dependencies.Obsidia.IncludeDir, this_directory() .. "Obsidia/Source/")
 append_to_table(Dependencies.Obsidia.IncludeDir, Dependencies.Nano.IncludeDir)
-append_to_table(Dependencies.Obsidia.IncludeDir, Dependencies.Obsidian.IncludeDir)
-append_to_table(Dependencies.Obsidia.IncludeDir, Dependencies.Photon.IncludeDir)
+append_to_table(Dependencies.Obsidia.IncludeDir, remove_from_table(Dependencies.Obsidian.IncludeDir, "Nano"))
+append_to_table(Dependencies.Obsidia.IncludeDir, remove_from_table(Dependencies.Photon.IncludeDir, "Nano"))
 
 -- LibDir
-append_to_table(Dependencies.Obsidia.LibDir, Dependencies.Obsidian.LibDir)
-append_to_table(Dependencies.Obsidia.LibDir, Dependencies.Photon.LibDir)
+--append_to_table(Dependencies.Obsidia.LibDir, Dependencies.Obsidian.LibDir)
+--append_to_table(Dependencies.Obsidia.LibDir, Dependencies.Photon.LibDir)
 
 -- LibNames
 append_to_table(Dependencies.Obsidia.LibName, "Obsidia")
-append_to_table(Dependencies.Obsidia.LibName, Dependencies.Obsidian.LibName)
-append_to_table(Dependencies.Obsidia.LibName, Dependencies.Photon.LibName)
+--append_to_table(Dependencies.Obsidia.LibName, Dependencies.Obsidian.LibName)
+--append_to_table(Dependencies.Obsidia.LibName, Dependencies.Photon.LibName)
 
 -- PostBuildCommands
-append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Obsidian.PostBuildCommands)
-append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Photon.PostBuildCommands)
+--append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Obsidian.PostBuildCommands)
+--append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Photon.PostBuildCommands)
 ------------------------------------------------------------------------------
 
 return Dependencies

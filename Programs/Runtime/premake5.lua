@@ -71,7 +71,7 @@ project "Runtime"
 		runtime "Release"
 		optimize "on"
 
-	filter "configurations:Dist"
+	filter "configurations:Distribution"
 		runtime "Release"
 		optimize "Full"
 		linktimeoptimization "on"

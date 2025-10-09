@@ -2,6 +2,8 @@
 
 #include <Nano/Nano.hpp>
 
+#include <cstdint>
+
 namespace Ob
 {
 
@@ -10,7 +12,5 @@ namespace Ob
     ////////////////////////////////////////////////////////////////////////////////////
     // Note: This exists to make myself use better coding practices.
     #define mut
-    
-
 
 }

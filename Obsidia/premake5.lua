@@ -36,9 +36,10 @@ project "Obsidia"
 	includedirs
 	{
 		"Source",
+		"Source/Obsidia",
 	}
 
-	includedirs(Dependencies.Obsidia.IncludeDir) -- Note: Includes Source/Obsidia
+	includedirs(Dependencies.Obsidia.IncludeDir)
 	libdirs(Dependencies.Obsidia.LibDir)
 	links(remove_from_table(Dependencies.Obsidia.LibName, "Obsidia"))
 	--postbuildcommands(Dependencies.Obsidia.PostBuildCommands)
@@ -57,6 +58,9 @@ project "Obsidia"
 		systemversion "latest"
 		staticruntime "on"
 
+		-- Note: For some reason gmake, now also needs full pchheader path
+		pchheader "Source/Obsidia/obpch.h"
+
     filter "system:macosx"
 		systemversion(MacOSVersion)
 		staticruntime "on"
@@ -66,21 +70,24 @@ project "Obsidia"
 
 	filter "action:xcode*"
 		-- Note: XCode only needs the full pchheader path
-		pchheader "Source/Obsidian/obpch.h"
+		pchheader "Source/Obsidia/obpch.h"
 
 		-- Note: If we don't add the header files to the externalincludedirs
 		-- we can't use <angled> brackets to include files.
 		externalincludedirs(includedirs())
 
 	filter "configurations:Debug"
+		defines "OBSIDIA_CONFIG_DEBUG"
 		runtime "Debug"
 		symbols "on"
 		
 	filter "configurations:Release"
+		defines "OBSIDIA_CONFIG_RELEASE"
 		runtime "Release"
 		optimize "on"
-
-	filter "configurations:Dist"
+		
+	filter "configurations:Distribution"
+		defines "OBSIDIA_CONFIG_DISTRIBUTION"
 		runtime "Release"
 		optimize "Full"
 		linktimeoptimization "on"

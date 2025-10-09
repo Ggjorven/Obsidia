@@ -68,7 +68,7 @@ workspace "Obsidia"
 	{
 		"Debug",
 		"Release",
-		"Dist"
+		"Distribution"
 	}
 
 	flags
