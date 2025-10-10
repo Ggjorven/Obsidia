@@ -12,6 +12,6 @@ int main(const int argc, const char* argv[])
 	Logger::Warning("Printing: {0}", 30);
 	Logger::Error("Printing: {0}", 40);
 	Logger::Fatal("Printing: {0}", 50);
-	
+
 	return 0;
 }

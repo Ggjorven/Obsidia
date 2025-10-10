@@ -6,6 +6,7 @@
 #include <format>
 #include <string>
 #include <memory>
+#include <filesystem>
 #include <string_view>
 
 namespace Ob
@@ -14,7 +15,7 @@ namespace Ob
     ////////////////////////////////////////////////////////////////////////////////////
     // Sink
     ////////////////////////////////////////////////////////////////////////////////////
-    class Sink
+    class Sink // Note: Can be used to create custom Sinks for example on-screen logs
     {
     public:
         // Specifier structs
@@ -85,7 +86,15 @@ namespace Ob
     {
     public:
         // Constructor & Destructor
+        FileSink(const std::filesystem::path& file, const Sink::Level filter = Sink::Level::Trace | Sink::Level::Info | Sink::Level::Warning | Sink::Level::Error | Sink::Level::Fatal);
+        virtual ~FileSink() = default;
 
+        // Methods
+        virtual void Output(const Level level, const std::string_view message) const override;
+
+    private:
+        const std::filesystem::path m_File;
+        const Sink::Level m_Filter;
     };
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -101,8 +110,9 @@ namespace Ob
         template<typename ...TArgs> static void Error(std::format_string<TArgs...> fmt, TArgs&& ...args) { Output(Sink::Level::Error, std::format(fmt, std::forward<TArgs>(args)...)); }
         template<typename ...TArgs> static void Fatal(std::format_string<TArgs...> fmt, TArgs&& ...args) { Output(Sink::Level::Fatal, std::format(fmt, std::forward<TArgs>(args)...)); }
 
-        // Static adder
+        // Static helpers
         inline static void AddSink(mut std::shared_ptr<Sink> sink) { s_Sinks.emplace_back(sink); }
+        static void RemoveSink(mut Sink* sink);
 
     private:
         // Private static methods
