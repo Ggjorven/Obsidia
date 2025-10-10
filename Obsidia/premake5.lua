@@ -41,9 +41,9 @@ project "Obsidia"
 
 	includedirs(Dependencies.Obsidia.IncludeDir)
 	libdirs(Dependencies.Obsidia.LibDir)
-	links(remove_from_table(Dependencies.Obsidia.LibName, "Obsidia"))
+	links(remove_from_table_absolute(Dependencies.Obsidia.LibName, "Obsidia"))
 	--postbuildcommands(Dependencies.Obsidia.PostBuildCommands)
- 
+
 	filter "system:windows"
 		systemversion "latest"
 		staticruntime "on"
@@ -60,6 +60,9 @@ project "Obsidia"
 
 		-- Note: For some reason gmake, now also needs full pchheader path
 		pchheader "Source/Obsidia/obpch.h"
+
+		links(Dependencies.Obsidian.LibName)
+		links(Dependencies.Photon.LibName)
 
     filter "system:macosx"
 		systemversion(MacOSVersion)

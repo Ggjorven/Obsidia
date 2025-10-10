@@ -36,6 +36,15 @@ function remove_from_table(dest, filter)
 	return dest
 end
 
+function remove_from_table_absolute(dest, value)
+    for i = #dest, 1, -1 do
+        if dest[i] == value then
+            table.remove(dest, i)
+        end
+    end
+    return dest
+end
+
 function copy_table(tbl)
     if type(tbl) ~= "table" then 
 		return tbl 
@@ -64,9 +73,9 @@ local Dependencies =
     -- External dependencies
     Nano = 
     {
-        IncludeDir = local_require("Vendor/Photon/Photon/Dependencies.lua").Nano.IncludeDir
+        --IncludeDir = local_require("Vendor/Photon/Photon/Dependencies.lua").Nano.IncludeDir
+        IncludeDir = this_directory() .. "Vendor/Nano/Nano/Nano/include"
     },
-
 	Obsidian = local_require("Vendor/Obsidian/Obsidian/Dependencies.lua").Obsidian,
 	Photon = local_require("Vendor/Photon/Photon/Dependencies.lua").Photon,
 
@@ -91,17 +100,17 @@ append_to_table(Dependencies.Obsidia.IncludeDir, remove_from_table(Dependencies.
 append_to_table(Dependencies.Obsidia.IncludeDir, remove_from_table(Dependencies.Photon.IncludeDir, "Nano"))
 
 -- LibDir
---append_to_table(Dependencies.Obsidia.LibDir, Dependencies.Obsidian.LibDir)
---append_to_table(Dependencies.Obsidia.LibDir, Dependencies.Photon.LibDir)
+append_to_table(Dependencies.Obsidia.LibDir, Dependencies.Obsidian.LibDir)
+append_to_table(Dependencies.Obsidia.LibDir, Dependencies.Photon.LibDir)
 
 -- LibNames
 append_to_table(Dependencies.Obsidia.LibName, "Obsidia")
---append_to_table(Dependencies.Obsidia.LibName, Dependencies.Obsidian.LibName)
---append_to_table(Dependencies.Obsidia.LibName, Dependencies.Photon.LibName)
+append_to_table(Dependencies.Obsidia.LibName, "Obsidian")
+append_to_table(Dependencies.Obsidia.LibName, "Photon")
 
 -- PostBuildCommands
---append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Obsidian.PostBuildCommands)
---append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Photon.PostBuildCommands)
+append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Obsidian.PostBuildCommands)
+append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Photon.PostBuildCommands)
 ------------------------------------------------------------------------------
 
 return Dependencies

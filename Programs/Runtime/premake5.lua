@@ -34,13 +34,16 @@ project "Runtime"
 		"Source",
 	}
 
-	includedirs(Dependencies.Obsidia.IncludeDir)
-	links(Dependencies.Obsidia.LibName)
+	includedirs(Dependencies.Obsidia.IncludeDir) -- Note: Includes Source/Obsidia
+	libdirs(Dependencies.Obsidia.LibDir)
+	postbuildcommands(Dependencies.Obsidia.PostBuildCommands)
 
 	filter "system:windows"
 		systemversion "latest"
 		staticruntime "on"
 		editandcontinue "off"
+
+		links("Obsidia")
 
         defines
         {
@@ -51,9 +54,16 @@ project "Runtime"
 		systemversion "latest"
 		staticruntime "on"
 
+		-- Note: On linux, it needs to relink all dependencies
+		links("Obsidia")
+		links(Dependencies.Obsidian.LibName)
+		links(Dependencies.Photon.LibName)
+
     filter "system:macosx"
 		systemversion(MacOSVersion)
 		staticruntime "on"
+
+		links("Obsidia")
 
 	filter "action:vs*"
 		buildoptions { "/Zc:preprocessor" }

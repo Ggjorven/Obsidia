@@ -45,9 +45,8 @@ namespace Ob
     ////////////////////////////////////////////////////////////////////////////////////
     void Logger::Output(const Sink::Level level, const std::string& message)
     {
-        // TODO: ...
-        //for (const auto sink : s_Sinks)
-        //    sink->Output(level, std::format("[{0}] [{1}]: {2}", ::Nano::Time::String(), Sink::LevelToTag(level), message));
+        for (const auto sink : s_Sinks)
+            sink->Output(level, std::format("[{0}] [{1}]: {2}\n", ::Nano::Time::String(), Sink::LevelToTag(level), message));
     }
 
 }

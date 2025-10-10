@@ -38,7 +38,7 @@ namespace Ob
                 break;
             }
 
-            return "<INVALID COLOUR>";
+            return "<INVALID LEVEL>";
         }
 
         constexpr static std::string_view LevelToTag(const Level level)
@@ -55,7 +55,7 @@ namespace Ob
                 break;
             }
 
-            return "<INVALID COLOUR>";
+            return "<INVALID LEVEL>";
         }
 
     public:

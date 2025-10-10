@@ -55,7 +55,9 @@ project "Editor"
 		staticruntime "on"
 
 		-- Note: On linux, it needs to relink all dependencies
-		links(Dependencies.Obsidia.LibName)
+		links("Obsidia")
+		links(Dependencies.Obsidian.LibName)
+		links(Dependencies.Photon.LibName)
 
     filter "system:macosx"
 		systemversion(MacOSVersion)
