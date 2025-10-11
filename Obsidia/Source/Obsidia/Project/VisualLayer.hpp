@@ -33,7 +33,7 @@ namespace Ob::Project
         ~VisualLayer();
 
         // Getters
-        inline VisualLayerSpecification& GetSpecification() { return m_Specification; }
+        inline const VisualLayerSpecification& GetSpecification() { return m_Specification; }
 
     private:
         // Private methods

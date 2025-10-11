@@ -7,7 +7,10 @@
 #include <Obsidian/Core/Events.hpp>
 
 #include <cstdint>
+#include <string>
 #include <vector>
+#include <variant>
+#include <unordered_map>
 
 namespace Ob::Project
 {
@@ -18,12 +21,19 @@ namespace Ob::Project
     struct ProjectSpecification
     {
     public:
+        std::string Name = {};
+
         std::vector<SceneSpecification> Scenes = {};
+        std::variant<uint64_t, std::string> StartScene = 0ull;
 
     public:
         // Setters
+        inline ProjectSpecification& SetName(const std::string& name) { Name = name; return *this; }
+
         inline ProjectSpecification& SetScenes(std::vector<SceneSpecification>&& layers) { Scenes = std::move(layers); return *this; }
         inline ProjectSpecification& AddScene(const SceneSpecification& specs) { Scenes.emplace_back(specs); return *this; }
+        inline ProjectSpecification& SetStartScene(uint64_t uuid) { StartScene = uuid; return *this; }
+        inline ProjectSpecification& SetStartScene(const std::string& name) { StartScene = name; return *this; }
     };
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -42,15 +52,18 @@ namespace Ob::Project
         void OnEvent(const Obsidian::Event& e);
 
         // Getters
-        inline ProjectSpecification& GetSpecification() { return m_Specification; }
+        inline const ProjectSpecification& GetSpecification() { return m_Specification; }
 
     private:
         // Private methods
         void ProcessScenes();
+        void InitializeStart();
 
     private:
         ProjectSpecification m_Specification;
 
+        std::unordered_map<uint64_t, SceneSpecification*> m_SceneByUUID = {};
+        std::unordered_map<std::string, SceneSpecification*> m_SceneByName = {};
     };
 
 }

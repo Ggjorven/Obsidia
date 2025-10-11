@@ -48,7 +48,7 @@ namespace Ob
         void Run();
 
         // Getters
-        inline ApplicationSpecification& GetSpecification() { return m_Specification; }
+        inline const ApplicationSpecification& GetSpecification() { return m_Specification; }
 
     private:
         // Private methods

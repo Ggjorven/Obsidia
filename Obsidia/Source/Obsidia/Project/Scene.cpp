@@ -15,6 +15,8 @@ namespace Ob::Project
     Scene::Scene(const SceneSpecification& specs)
         : m_Specification(specs)
     {
+        Logger::Info("[Scene] Initializing scene named: \"{0}\"", m_Specification.Name);
+
         CreateVisualLayers();
     }
 
@@ -42,6 +44,8 @@ namespace Ob::Project
     ////////////////////////////////////////////////////////////////////////////////////
     void Scene::CreateVisualLayers()
     {
+        Logger::Info("[Scene] Creating {0} VisualLayers from specification.", m_Specification.VisualLayers.size());
+
         // Sorting
         {
             // Note: Sorts based on Level
@@ -53,11 +57,17 @@ namespace Ob::Project
                 if (layerSpec.Level != level)
                 {
                     if (layerSpec.Level != 0) // Note: 0 means auto initialize
-                        Logger::Warning("VisualLayer's level doesn't match in hierarchy. Requested level is {}, should be {}.", layerSpec.Level, level);
+                        Logger::Warning("[Scene] VisualLayer's level doesn't match in hierarchy. Requested level is {0}, should be {1}.", layerSpec.Level, level);
                     layerSpec.Level = level;
                 }
 
                 level++;
+            }
+
+            if (m_Specification.VisualLayers.empty())
+            {
+                Logger::Warning("[Scene] No VisualLayer specification passed in. Creating a layer with level 1.");
+                m_Specification.VisualLayers.emplace_back(VisualLayerSpecification().SetLevel(1));
             }
         }
 

@@ -49,7 +49,7 @@ namespace Ob::Project
         void OnEvent(const Obsidian::Event& e);
 
         // Getters
-        inline SceneSpecification& GetSpecification() { return m_Specification; }
+        inline const SceneSpecification& GetSpecification() { return m_Specification; }
 
     private:
         // Private methods

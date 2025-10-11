@@ -7,14 +7,21 @@ int main(const int argc, const char* argv[])
 	(void)argc; (void)argv;
 
 	Application app = Application(ApplicationSpecification()
-		.SetTitle("AAAAA")
+		.SetTitle("Obsidia Application - TESTPROJECT")
 		.SetWidthAndHeight(1280, 720)
 
 		.SetProject(Project::ProjectSpecification()
+			.SetName("TESTPROJECT")
+
 			.AddScene(Project::SceneSpecification()
-				.AddVisualLayer(Project::VisualLayerSpecification())
-				.AddVisualLayer(Project::VisualLayerSpecification())
+				.SetName("MainMenu")
+				.SetUUID(10)
+
+				//.AddVisualLayer(Project::VisualLayerSpecification())
+				//.AddVisualLayer(Project::VisualLayerSpecification())
 			)
+			
+			.SetStartScene(10)
 		)
 	);
 	app.Run();
