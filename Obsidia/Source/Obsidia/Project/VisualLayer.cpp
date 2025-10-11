@@ -1,5 +1,5 @@
 #include "obpch.h"
-#include "Project.hpp"
+#include "VisualLayer.hpp"
 
 #include "Obsidia/Core/Core.hpp"
 #include "Obsidia/Core/Logger.hpp"
@@ -12,43 +12,22 @@ namespace Ob::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // Constructor & Destructor
     ////////////////////////////////////////////////////////////////////////////////////
-    Project::Project(const ProjectSpecification& specs)
+    VisualLayer::VisualLayer(const VisualLayerSpecification& specs)
         : m_Specification(specs)
     {
-#if !defined(OBSIDIA_CONFIG_DISTRIBUTION)
-        ProcessScenes();
-#endif
     }
 
-    Project::~Project()
+    VisualLayer::~VisualLayer()
     {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Methods
     ////////////////////////////////////////////////////////////////////////////////////
-    void Project::OnUpdate(float deltaTime)
-    {
-    }
-
-    void Project::OnRender()
-    {
-    }
-
-    void Project::OnEvent(const Obsidian::Event& e)
-    {
-    }
+   
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Private methods
     ////////////////////////////////////////////////////////////////////////////////////
-    void Project::ProcessScenes()
-    {
-        for (auto& scene : m_Specification.Scenes)
-        {
-            if (scene.UUID == 0) // Note: 0 means auto-initialize
-                scene.UUID = 0; // TODO: Random UUID
-        }
-    }
-
+    
 }
