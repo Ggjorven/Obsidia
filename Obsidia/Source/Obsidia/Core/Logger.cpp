@@ -14,9 +14,9 @@ namespace Ob
     ////////////////////////////////////////////////////////////////////////////////////
     // Static initialization
     ////////////////////////////////////////////////////////////////////////////////////
-    mut std::vector<std::shared_ptr<Sink>> Logger::s_Sinks = []() -> std::vector<std::shared_ptr<Sink>>
+    std::vector<std::shared_ptr<Sink>> Logger::s_Sinks = []() -> std::vector<std::shared_ptr<Sink>>
         { 
-            mut std::vector<std::shared_ptr<Sink>> sinks;
+            std::vector<std::shared_ptr<Sink>> sinks;
             sinks.reserve(2); 
 
 #if !defined(OBSIDIA_CONFIG_DISTRIBUTION)
@@ -74,7 +74,7 @@ namespace Ob
     ////////////////////////////////////////////////////////////////////////////////////
     // Static helpers
     ////////////////////////////////////////////////////////////////////////////////////
-    void Logger::RemoveSink(mut Sink* sink)
+    void Logger::RemoveSink(Sink* sink)
     {
         const auto position = std::ranges::find(s_Sinks, std::shared_ptr<Sink>(sink));
 
@@ -88,7 +88,7 @@ namespace Ob
     void Logger::Output(const Sink::Level level, const std::string& message)
     {
         for (const std::shared_ptr<Sink> sink : s_Sinks)
-            sink->Output(level, std::format("[{0}] [{1}]: {2}\n", ::Nano::Time::String(), Sink::LevelToTag(level), message));
+            sink->Output(level, std::format("[{0}] [{1}]: {2}\n", Nano::Time::String(), Sink::LevelToTag(level), message));
     }
 
 }

@@ -1,0 +1,36 @@
+#include "obpch.h"
+#include "Project.hpp"
+
+#include "Obsidia/Core/Core.hpp"
+#include "Obsidia/Core/Logger.hpp"
+
+namespace Ob::Project
+{
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // Constructor & Destructor
+    ////////////////////////////////////////////////////////////////////////////////////
+    Project::Project(const ProjectSpecification& specs)
+    {
+    }
+
+    Project::~Project()
+    {
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // Methods
+    ////////////////////////////////////////////////////////////////////////////////////
+    void Project::OnUpdate(float deltaTime)
+    {
+    }
+
+    void Project::OnRender()
+    {
+    }
+
+    void Project::OnEvent(const Obsidian::Event& e)
+    {
+    }
+
+}

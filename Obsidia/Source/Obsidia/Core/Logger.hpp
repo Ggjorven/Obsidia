@@ -111,15 +111,20 @@ namespace Ob
         template<typename ...TArgs> static void Fatal(std::format_string<TArgs...> fmt, TArgs&& ...args) { Output(Sink::Level::Fatal, std::format(fmt, std::forward<TArgs>(args)...)); }
 
         // Static helpers
-        inline static void AddSink(mut std::shared_ptr<Sink> sink) { s_Sinks.emplace_back(sink); }
-        static void RemoveSink(mut Sink* sink);
+        inline static void AddSink(std::shared_ptr<Sink> sink) { s_Sinks.emplace_back(sink); }
+        static void RemoveSink(Sink* sink);
 
     private:
         // Private static methods
         static void Output(const Sink::Level level, const std::string& message);
 
     private:
-        static mut std::vector<mut std::shared_ptr<Sink>> s_Sinks;
+        static std::vector<std::shared_ptr<Sink>> s_Sinks;
     };
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // Defines
+    ////////////////////////////////////////////////////////////////////////////////////
+    #define OBSIDIA_ASSERT(x, fmt, ...) do { if (!(x)) { ::Ob::Logger::Fatal(fmt __VA_OPT__(,) __VA_ARGS__); NANO_DEBUG_BREAK(); } } while (false)
 
 }

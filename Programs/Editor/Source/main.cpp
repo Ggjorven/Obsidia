@@ -1,7 +1,4 @@
-#include <Obsidia/Core/Core.hpp>
-#include <Obsidia/Core/Logger.hpp>
-
-#include <Obsidian/Core/Window.hpp>
+#include <Obsidia/Core/Application.hpp>
 
 using namespace Ob;
 
@@ -9,19 +6,14 @@ int main(const int argc, const char* argv[])
 {
 	(void)argc; (void)argv;
 
-	Obsidian::Window window = Obsidian::Window(Obsidian::WindowSpecification()
-		.SetTitle("Test")
-		.SetWidthAndHeight(1280, 720)
-		.SetEventCallback([](const Obsidian::Event e) { })
-		.SetFlags(Obsidian::WindowFlags::Default)
+	Ob::Application app = Ob::Application(
+		Ob::ApplicationSpecification()
+			.SetTitle("AAAAA")
+			.SetWidthAndHeight(1280, 720)
+
+			//.SetProject()
 	);
-
-	while (window.IsOpen())
-	{
-		window.PollEvents();
-
-		window.SwapBuffers();
-	}
+	app.Run();
 
 	return 0;
 }
