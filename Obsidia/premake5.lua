@@ -43,6 +43,7 @@ project "Obsidia"
 	libdirs(Dependencies.Obsidia.LibDir)
 	links(remove_from_table_absolute(Dependencies.Obsidia.LibName, "Obsidia"))
 	--postbuildcommands(Dependencies.Obsidia.PostBuildCommands)
+	defines(Dependencies.Obsidia.Defines)
 
 	filter "system:windows"
 		systemversion "latest"

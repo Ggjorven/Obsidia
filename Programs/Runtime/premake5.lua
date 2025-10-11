@@ -37,6 +37,7 @@ project "Runtime"
 	includedirs(Dependencies.Obsidia.IncludeDir) -- Note: Includes Source/Obsidia
 	libdirs(Dependencies.Obsidia.LibDir)
 	postbuildcommands(Dependencies.Obsidia.PostBuildCommands)
+	defines(Dependencies.Obsidia.Defines)
 
 	filter "system:windows"
 		systemversion "latest"

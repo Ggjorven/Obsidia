@@ -1,17 +1,27 @@
 #include <Obsidia/Core/Core.hpp>
 #include <Obsidia/Core/Logger.hpp>
 
+#include <Obsidian/Core/Window.hpp>
+
 using namespace Ob;
 
 int main(const int argc, const char* argv[])
 {
 	(void)argc; (void)argv;
 
-	Logger::Trace("Printing: {0}", 10);
-	Logger::Info("Printing: {0}", 20);
-	Logger::Warning("Printing: {0}", 30);
-	Logger::Error("Printing: {0}", 40);
-	Logger::Fatal("Printing: {0}", 50);
+	Obsidian::Window window = Obsidian::Window(Obsidian::WindowSpecification()
+		.SetTitle("Test")
+		.SetWidthAndHeight(1280, 720)
+		.SetEventCallback([](const Obsidian::Event e) { })
+		.SetFlags(Obsidian::WindowFlags::Default)
+	);
+
+	while (window.IsOpen())
+	{
+		window.PollEvents();
+
+		window.SwapBuffers();
+	}
 
 	return 0;
 }

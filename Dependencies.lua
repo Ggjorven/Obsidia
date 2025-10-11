@@ -85,7 +85,8 @@ local Dependencies =
 		IncludeDir = {},
         LibDir = {},
         LibName = {},
-        PostBuildCommands = {}
+        PostBuildCommands = {},
+        Defines = {}
     }
 }
 ------------------------------------------------------------------------------
@@ -111,6 +112,15 @@ append_to_table(Dependencies.Obsidia.LibName, "Photon")
 -- PostBuildCommands
 append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Obsidian.PostBuildCommands)
 append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Photon.PostBuildCommands)
+
+-- Defines
+if OBSIDIAN_GRAPHICS_API == "vulkan" then
+    append_to_table(Dependencies.Obsidia.Defines, "OB_API_VULKAN")
+elseif OBSIDIAN_GRAPHICS_API == "dx12" then
+    append_to_table(Dependencies.Obsidia.Defines, "OB_API_DX12")
+else
+    error("Invalid API")
+end
 ------------------------------------------------------------------------------
 
 return Dependencies
