@@ -12,8 +12,8 @@ namespace Ob::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // Constructor & Destructor
     ////////////////////////////////////////////////////////////////////////////////////
-    Scene::Scene(const SceneSpecification& specs)
-        : m_Specification(specs)
+    Scene::Scene(const SceneSpecification& specs, SceneTable&& table)
+        : m_Specification(specs), m_Table(std::move(table))
     {
         Logger::Info("[Scene] Initializing scene named: \"{0}\"", m_Specification.Name);
 
@@ -44,15 +44,15 @@ namespace Ob::Project
     ////////////////////////////////////////////////////////////////////////////////////
     void Scene::CreateVisualLayers()
     {
-        Logger::Info("[Scene] Creating {0} VisualLayers from specification.", m_Specification.VisualLayers.size());
+        Logger::Info("[Scene] Creating {0} VisualLayers from specification.", m_Table.GetVisualLayerSpecifications().size());
 
         // Sorting
         {
             // Note: Sorts based on Level
-            std::ranges::sort(m_Specification.VisualLayers, {}, &VisualLayerSpecification::Level);
+            std::ranges::sort(m_Table.GetVisualLayerSpecifications(), {}, &VisualLayerSpecification::Level);
 
             uint8_t level = 1;
-            for (auto& layerSpec : m_Specification.VisualLayers)
+            for (auto& layerSpec : m_Table.GetVisualLayerSpecifications())
             {
                 if (layerSpec.Level != level)
                 {
@@ -64,17 +64,17 @@ namespace Ob::Project
                 level++;
             }
 
-            if (m_Specification.VisualLayers.empty())
+            if (m_Table.GetVisualLayerSpecifications().empty())
             {
                 Logger::Warning("[Scene] No VisualLayer specification passed in. Creating a layer with level 1.");
-                m_Specification.VisualLayers.emplace_back(VisualLayerSpecification().SetLevel(1));
+                m_Table.GetVisualLayerSpecifications().emplace_back(VisualLayerSpecification().SetLevel(1));
             }
         }
 
         // Creation
         {
-            m_VisualLayers.reserve(m_Specification.VisualLayers.size());
-            for (const auto& layerSpec : m_Specification.VisualLayers)
+            m_VisualLayers.reserve(m_Table.GetVisualLayerSpecifications().size());
+            for (const auto& layerSpec : m_Table.GetVisualLayerSpecifications())
                 m_VisualLayers.emplace_back(layerSpec);
         }
     }

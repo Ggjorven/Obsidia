@@ -125,6 +125,10 @@ namespace Ob
     ////////////////////////////////////////////////////////////////////////////////////
     // Defines
     ////////////////////////////////////////////////////////////////////////////////////
-    #define OBSIDIA_ASSERT(x, fmt, ...) do { if (!(x)) { ::Ob::Logger::Fatal(fmt __VA_OPT__(,) __VA_ARGS__); NANO_DEBUG_BREAK(); } } while (false)
+    #if !defined(OBSIDIA_CONFIG_DISTRIBUTION)
+        #define OBSIDIA_ASSERT(x, fmt, ...) do { if (!(x)) { ::Ob::Logger::Fatal(fmt __VA_OPT__(,) __VA_ARGS__); NANO_DEBUG_BREAK(); } } while (false)
+    #else
+        #define OBSIDIA_ASSERT(x, fmt, ...)
+    #endif
 
 }

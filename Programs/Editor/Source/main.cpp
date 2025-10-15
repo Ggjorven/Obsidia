@@ -17,8 +17,6 @@ int main(const int argc, const char* argv[])
 				.SetName("MainMenu")
 				.SetUUID(10)
 
-				//.AddVisualLayer(Project::VisualLayerSpecification())
-				//.AddVisualLayer(Project::VisualLayerSpecification())
 			)
 			
 			.SetStartScene(10)

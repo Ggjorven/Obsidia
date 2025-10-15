@@ -83,8 +83,6 @@ namespace Ob::Project
                 m_Specification.Scenes.emplace_back(SceneSpecification()
                     .SetUUID(uuid)
                     .SetName("Scene-" + std::to_string(uuid))
-
-                    .AddVisualLayer(VisualLayerSpecification())
                 );
                 m_Specification.StartScene = uuid;
             }
@@ -145,8 +143,8 @@ namespace Ob::Project
 
         Logger::Info("[Project] Initializing start scene: \"{0}\" with id: {1}", startScene.Name, startScene.UUID);
 
-        // TODO: Initialize
-        Scene scene = Scene(startScene);
+        SceneTable table = startScene.LoadSceneFn();
+        Scene scene = Scene(startScene, std::move(table));
     }
 
 }
