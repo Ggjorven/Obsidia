@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <variant>
+#include <expected>
 #include <unordered_map>
 
 namespace Ob::Project
@@ -55,15 +56,21 @@ namespace Ob::Project
         inline const ProjectSpecification& GetSpecification() { return m_Specification; }
 
     private:
+        enum class LoadSceneError : uint8_t { UUIDNotFound = 0, NameNotFound, NoLoadFunction };
+
+    private:
         // Private methods
         void ProcessScenes();
-        void InitializeStart();
+        std::expected<std::shared_ptr<Scene>, LoadSceneError> LoadScene(const std::variant<uint64_t, std::string>& sceneIdentifier);
 
     private:
         ProjectSpecification m_Specification;
 
-        std::unordered_map<uint64_t, SceneSpecification*> m_SceneByUUID = {};
-        std::unordered_map<std::string, SceneSpecification*> m_SceneByName = {};
+        std::unordered_map<uint64_t, SceneSpecification*> m_SceneSpecByUUID = {};
+        std::unordered_map<std::string, SceneSpecification*> m_SceneSpecByName = {};
+
+        std::unordered_map<uint64_t, std::shared_ptr<Scene>> m_SceneByUUID = {};
+        std::unordered_map<std::string, std::shared_ptr<Scene>> m_SceneByName = {};
     };
 
 }

@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <memory>
 #include <variant>
 #include <functional>
 #include <type_traits>
@@ -22,19 +23,25 @@ namespace Ob::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // SceneTable // Note: Actual scene data
     ////////////////////////////////////////////////////////////////////////////////////
-    struct Scene2DTable
+    struct SceneTable // Note: Scene data that's the same for 2D and 3D
+    {
+    public:
+        std::vector<VisualLayerSpecification> VisualLayers = {};
+
+        // TODO: Physics Ticks
+
+    public:
+        // Note: The setters are defined in the specific struct, because it needs to return the actual type.
+    };
+
+    struct Scene2DTable : public SceneTable
     {
     public:
         ECS::Registry2D Registry = {};
 
-        std::vector<VisualLayerSpecification> VisualLayers = {};
         // TODO: Physics layers
 
         // TODO: Camera
-        // TODO: LightingModel
-        // TODO: MSAA
-
-        // TODO: Physics Ticks
 
     public:
         // Setters
@@ -44,32 +51,23 @@ namespace Ob::Project
         inline Scene2DTable& AddVisualLayer(const VisualLayerSpecification& specs) { VisualLayers.emplace_back(specs); return *this; }
     };
 
-    struct Scene3DTable
+    struct Scene3DTable : public SceneTable
     {
     public:
         ECS::Registry3D Registry = {};
 
-        std::vector<VisualLayerSpecification> VisualLayers = {};
         // TODO: Physics layers
 
         // TODO: Camera
         // TODO: LightingModel
         // TODO: MSAA
 
-        // TODO: Physics Ticks
-
     public:
         // Setters
-    };
+        inline Scene3DTable& SetRegistry(ECS::Registry3D&& registry) { Registry = std::move(registry); }
 
-    struct SceneTable
-    {
-    public:
-        std::variant<Scene2DTable, Scene3DTable> Table;
-
-    public:
-        // Getters
-        inline std::vector<VisualLayerSpecification>& GetVisualLayerSpecifications() { return std::visit([](auto&& obj) -> std::vector<VisualLayerSpecification>&{ return obj.VisualLayers; }, Table); }
+        inline Scene3DTable& SetVisualLayers(std::vector<VisualLayerSpecification>&& layers) { VisualLayers = std::move(layers); return *this; }
+        inline Scene3DTable& AddVisualLayer(const VisualLayerSpecification& specs) { VisualLayers.emplace_back(specs); return *this; }
     };
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -78,17 +76,21 @@ namespace Ob::Project
     struct SceneSpecification
     {
     public:
+        using Load2DFn = std::function<Scene2DTable(const SceneSpecification& specs)>;
+        using Load3DFn = std::function<Scene3DTable(const SceneSpecification& specs)>;
+    public:
         std::string Name = {};
         uint64_t UUID = 0; // Note: 0 means auto initialize
 
-        std::function<SceneTable()> LoadSceneFn = []() -> SceneTable { return SceneTable(); };
+        std::variant<Load2DFn, Load3DFn> LoadSceneFn = [](const SceneSpecification& specs) -> Scene2DTable { (void)specs; return Scene2DTable(); };
 
     public:
         // Setters
         inline SceneSpecification& SetName(const std::string& name) { Name = name; return *this; }
         inline SceneSpecification& SetUUID(uint64_t uuid) { UUID = uuid; return *this; }
 
-        inline SceneSpecification& SetLoadSceneFn(const std::function<SceneTable&&()>& fn) { LoadSceneFn = fn; return *this; }
+        inline SceneSpecification& SetLoadSceneFn(const Load2DFn& fn) { LoadSceneFn = fn; return *this; }
+        inline SceneSpecification& SetLoadSceneFn(const Load3DFn& fn) { LoadSceneFn = fn; return *this; }
     };
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -98,13 +100,13 @@ namespace Ob::Project
     {
     public:
         // Constructor & Destructor
-        Scene(const SceneSpecification& specs, SceneTable&& table);
+        Scene(const SceneSpecification& specs, const SceneTable& table);
         ~Scene();
 
         // Methods
-        void OnUpdate(float deltaTime);
-        void OnRender();
-        void OnEvent(const Obsidian::Event& e);
+        virtual void OnUpdate(float deltaTime) = 0;
+        virtual void OnRender() = 0;
+        virtual void OnEvent(const Obsidian::Event& e) = 0;
 
         // Getters
         inline const SceneSpecification& GetSpecification() { return m_Specification; }
@@ -115,9 +117,47 @@ namespace Ob::Project
 
     private:
         SceneSpecification m_Specification;
-        SceneTable m_Table;
+        SceneTable m_GlobalTable;
 
         std::vector<VisualLayer> m_VisualLayers;
+    };
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // Scene2D
+    ////////////////////////////////////////////////////////////////////////////////////
+    class Scene2D : public Scene
+    {
+    public:
+        // Constructor & Destructor
+        Scene2D(const SceneSpecification& specs, Scene2DTable&& table);
+        ~Scene2D();
+
+        // Methods
+        void OnUpdate(float deltaTime) override;
+        void OnRender() override;
+        void OnEvent(const Obsidian::Event& e) override;
+
+    private:
+        Scene2DTable m_Table;
+    };
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // Scene3D
+    ////////////////////////////////////////////////////////////////////////////////////
+    class Scene3D : public Scene
+    {
+    public:
+        // Constructor & Destructor
+        Scene3D(const SceneSpecification& specs, Scene3DTable&& table);
+        ~Scene3D();
+
+        // Methods
+        void OnUpdate(float deltaTime) override;
+        void OnRender() override;
+        void OnEvent(const Obsidian::Event& e) override;
+
+    private:
+        Scene3DTable m_Table;
     };
 
 }

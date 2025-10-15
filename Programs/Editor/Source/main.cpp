@@ -17,6 +17,10 @@ int main(const int argc, const char* argv[])
 				.SetName("MainMenu")
 				.SetUUID(10)
 
+				//.SetLoadSceneFn([](const Project::SceneSpecification& specs) -> Project::Scene2DTable
+				//{
+				//
+				//})
 			)
 			
 			.SetStartScene(10)

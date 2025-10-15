@@ -18,7 +18,20 @@ namespace Ob::Project
         Logger::Info("[Project] Initializing project named: \"{0}\"", m_Specification.Name);
 
         ProcessScenes();
-        InitializeStart();
+
+        // Load start scene
+        {
+            auto startScene = LoadScene(m_Specification.StartScene);
+            if (startScene.has_value())
+            {
+                m_SceneByName[startScene.value()->GetSpecification().Name] = startScene.value();
+                m_SceneByUUID[startScene.value()->GetSpecification().UUID] = startScene.value();
+            }
+            else
+            {
+                Logger::Error("Failed to load scene. Error code: {0}", Nano::Enum::Name(startScene.error()));
+            }
+        }
     }
 
     Project::~Project()
@@ -55,12 +68,12 @@ namespace Ob::Project
             for (auto& scene : m_Specification.Scenes)
             {
                 if (scene.UUID == 0) // Note: 0 means auto-initialize
-                    scene.UUID = 0; // TODO: Random UUID
+                    scene.UUID = Nano::Random::Random::UInt64();
 
                 if (UUIDs.contains(scene.UUID))
                 {
                     Logger::Error("[Project] Scene with name: \"{0}\" has a conflicting uuid with another scene ({1}). Resetting UUID, this can cause serious issues.", scene.Name, scene.UUID);
-                    scene.UUID = 0; // TODO: Random UUID
+                    scene.UUID = Nano::Random::Random::UInt64();
                 }
                 if (Names.contains(scene.Name))
                 {
@@ -79,7 +92,7 @@ namespace Ob::Project
             {
                 Logger::Warning("[Project] No scene specifications passed, creating default scene.");
 
-                const uint64_t uuid = 0; // TODO: Random UUID
+                const uint64_t uuid = Nano::Random::Random::UInt64();
                 m_Specification.Scenes.emplace_back(SceneSpecification()
                     .SetUUID(uuid)
                     .SetName("Scene-" + std::to_string(uuid))
@@ -88,16 +101,17 @@ namespace Ob::Project
             }
         }
 
-        // Move into maps
+        // Move specifications into maps
         {
             for (auto& scene : m_Specification.Scenes)
             {
-                m_SceneByName[scene.Name] = &scene;
-                m_SceneByUUID[scene.UUID] = &scene;
+                m_SceneSpecByName[scene.Name] = &scene;
+                m_SceneSpecByUUID[scene.UUID] = &scene;
             }
         }
 
-        // Verify start UUID
+        // Verify start UUID // TODO: Verify all UUIDs?
+        if (false)
         {
             std::visit(
                 [&](auto&& obj)
@@ -124,27 +138,58 @@ namespace Ob::Project
         }
     }
 
-    void Project::InitializeStart()
+    std::expected<std::shared_ptr<Scene>, Project::LoadSceneError> Project::LoadScene(const std::variant<uint64_t, std::string>& sceneIdentifier)
     {
-        const SceneSpecification& startScene = std::visit(
-            [&](auto&& obj) -> const SceneSpecification&
+        // Load the specification
+        const auto sceneSpec = std::visit(
+            [&](auto&& obj) -> std::expected<const SceneSpecification*, LoadSceneError>
             {
                 if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, uint64_t>)
                 {
-                    return *m_SceneByUUID[obj];
+                    if (!m_SceneSpecByUUID.contains(obj))
+                        return std::unexpected(LoadSceneError::UUIDNotFound);
+
+                    return m_SceneSpecByUUID[obj];
                 }
                 else if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, std::string>)
                 {
-                    return *m_SceneByName[obj];
+                    if (!m_SceneSpecByName.contains(obj))
+                        return std::unexpected(LoadSceneError::NameNotFound);
+
+                    return m_SceneSpecByName[obj];
                 }
             },
-            m_Specification.StartScene
+            sceneIdentifier
         );
 
-        Logger::Info("[Project] Initializing start scene: \"{0}\" with id: {1}", startScene.Name, startScene.UUID);
+        // Handle error
+        if (!sceneSpec.has_value())
+            return std::unexpected(sceneSpec.error());
 
-        SceneTable table = startScene.LoadSceneFn();
-        Scene scene = Scene(startScene, std::move(table));
+        Logger::Info("[Project] Initializing scene: \"{0}\" with id: {1}", sceneSpec.value()->Name, sceneSpec.value()->UUID);
+
+        // Load the scene
+        return std::visit(
+            [&](auto&& obj) -> std::expected<std::shared_ptr<Scene>, LoadSceneError>
+            {
+                // Make sure we can load
+                if (obj == nullptr)
+                    return std::unexpected(LoadSceneError::NoLoadFunction);
+
+                if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, SceneSpecification::Load2DFn>)
+                {
+                    Scene2DTable table = obj(*sceneSpec.value());
+                    return std::make_shared<Scene2D>(*sceneSpec.value(), std::move(table));
+                }
+                else if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, SceneSpecification::Load3DFn>)
+                {
+                    Scene3DTable table = obj(*sceneSpec.value());
+                    return std::make_shared<Scene3D>(*sceneSpec.value(), std::move(table));
+                }
+
+            },
+            sceneSpec.value()->LoadSceneFn
+        );
     }
 
 }
