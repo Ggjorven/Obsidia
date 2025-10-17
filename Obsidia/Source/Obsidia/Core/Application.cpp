@@ -18,6 +18,7 @@ namespace Ob
             .SetFlags(Obsidian::WindowFlags::Default)
             .SetEventCallback([this](Obsidian::Event e) { OnEvent(e); })
         )
+        , m_Renderer(m_Window, true) // TODO: Make VSync a parameter
     {
         OBSIDIA_ASSERT(specs.Project, "[Application] To create an application a project must be specified.");
     }
@@ -36,8 +37,6 @@ namespace Ob
 
         while (m_Window.IsOpen())
         {
-            m_Window.PollEvents();
-
             // Update
             {
                 float currentTime = static_cast<float>(m_Window.GetWindowTime());
@@ -48,12 +47,13 @@ namespace Ob
 
             // Render
             {
-                // TODO: Begin
+                m_Renderer->Begin();
                 m_Specification.Project->OnRender();
-                // TODO: End
+                m_Renderer->End();
             }
 
             m_Window.SwapBuffers();
+            m_Window.PollEvents();
         }
     }
 
@@ -63,8 +63,13 @@ namespace Ob
     void Application::OnEvent(Obsidian::Event e)
     {
         Nano::Events::EventHandler handler(e);
-        handler.Handle<Obsidian::WindowCloseEvent>([&](Obsidian::WindowCloseEvent& wce) { (void)wce; m_Window.Close(); });
-        //handler.Handle<Obsidian::WindowResizeEvent>([&](Obsidian::WindowResizeEvent& wre) { m_Window.Close(); }); // TODO: Resize renderer
+        handler.Handle<Obsidian::WindowCloseEvent>([&](Obsidian::WindowCloseEvent& wce) 
+        { 
+            (void)wce; 
+            m_Window.Close(); 
+            m_Renderer.Destroy();
+        });
+        handler.Handle<Obsidian::WindowResizeEvent>([&](Obsidian::WindowResizeEvent& wre) { m_Renderer->Resize(wre.GetWidth(), wre.GetHeight()); });
 
         m_Specification.Project->OnEvent(e);
     }

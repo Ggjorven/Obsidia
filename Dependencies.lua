@@ -74,7 +74,8 @@ local Dependencies =
     Nano = 
     {
         --IncludeDir = local_require("Vendor/Photon/Photon/Dependencies.lua").Nano.IncludeDir
-        IncludeDir = this_directory() .. "Vendor/Nano/Nano/Nano/include"
+        IncludeDir = this_directory() .. "Vendor/Nano/Nano/Nano/include",
+        Defines = { "NANO_EXPERIMENTAL" }
     },
 	Obsidian = local_require("Vendor/Obsidian/Obsidian/Dependencies.lua").Obsidian,
 	Photon = local_require("Vendor/Photon/Photon/Dependencies.lua").Photon,
@@ -114,6 +115,8 @@ append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Obsidian.Po
 append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Photon.PostBuildCommands)
 
 -- Defines
+append_to_table(Dependencies.Obsidia.Defines, Dependencies.Nano.Defines)
+
 if OBSIDIAN_GRAPHICS_API == "vulkan" then
     append_to_table(Dependencies.Obsidia.Defines, "OB_API_VULKAN")
 elseif OBSIDIAN_GRAPHICS_API == "dx12" then

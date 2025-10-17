@@ -3,6 +3,7 @@
 #include "Obsidia/Core/Core.hpp"
 
 #include "Obsidia/Project/Project.hpp"
+#include "Obsidia/Renderer/Renderer.hpp"
 
 #include <Obsidian/Core/Window.hpp>
 
@@ -60,7 +61,9 @@ namespace Ob
 
     private:
         ApplicationSpecification m_Specification;
+
         Obsidian::Window m_Window;
+        Nano::Memory::DeferredConstruct<Renderer, true> m_Renderer;
     };
 
 }

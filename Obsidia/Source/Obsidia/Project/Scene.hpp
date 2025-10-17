@@ -5,7 +5,7 @@
 
 #include "Obsidia/ECS/Registry.hpp"
 
-#include "Obsidia/Project/VisualLayer.hpp"
+#include "Obsidia/Project/Renderer/VisualLayer.hpp"
 
 #include <Obsidian/Core/Events.hpp>
 
