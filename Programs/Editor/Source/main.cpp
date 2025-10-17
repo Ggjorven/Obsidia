@@ -19,10 +19,12 @@ int main(const int argc, const char* argv[])
 
 				.SetLoadSceneFn([](const Project::SceneSpecification& specs) -> Project::Scene2DTable
 				{
+					Logger::Info("Load scene function being called.");
+
 					Project::Scene2DTable table = {};
 					int a;
 					int b;
-					return std::move(table);
+					return table;
 				})
 			)
 			

@@ -10,6 +10,95 @@ namespace Ob::Project
 {
 
     ////////////////////////////////////////////////////////////////////////////////////
+    // Adders
+    ////////////////////////////////////////////////////////////////////////////////////
+    void SceneCollection::AddSpecification(const SceneSpecification& specs)
+    {
+        SceneSpecByName[specs.Name] = specs;
+        SceneSpecByUUID[specs.UUID] = specs;
+    }
+
+    void SceneCollection::AddScene(std::shared_ptr<Scene> scene)
+    {
+        OBSIDIA_ASSERT(scene, "Scene must not be null.");
+
+        const SceneSpecification& specs = scene->GetSpecification();
+
+        if (!SpecContains(specs.UUID)) [[unlikely]]
+        {
+            Logger::Warning("[SceneCollection] Trying to add a scene, that hasn't previously been added as specification. Adding it now.");
+            SceneSpecByName[specs.Name] = specs;
+            SceneSpecByUUID[specs.UUID] = specs;
+        }
+
+        SceneByUUID[specs.UUID] = scene;
+        SceneByName[specs.Name] = scene;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // Getters
+    ////////////////////////////////////////////////////////////////////////////////////
+    bool SceneCollection::SpecContains(const SceneID& sceneIdentifier) const
+    {
+        return std::visit(
+            [&](auto&& obj) -> bool
+            {
+                if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, uint64_t>)
+                {
+                    return SceneSpecByUUID.contains(obj);
+                }
+                else if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, std::string>)
+                {
+                    return SceneSpecByName.contains(obj);
+                }
+            },
+            sceneIdentifier
+        );
+    }
+
+    bool SceneCollection::SceneLoaded(const SceneID& sceneIdentifier) const
+    {
+        return std::visit(
+            [&](auto&& obj) -> bool
+            {
+                if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, uint64_t>)
+                {
+                    return SceneByUUID.contains(obj);
+                }
+                else if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, std::string>)
+                {
+                    return SceneByName.contains(obj);
+                }
+            },
+            sceneIdentifier
+        );
+    }
+
+    std::expected<SceneSpecification, ErrorCode> SceneCollection::GetSpecification(const SceneID& sceneIdentifier)
+    {
+        return std::visit(
+            [&](auto&& obj) -> std::expected<SceneSpecification, ErrorCode>
+            {
+                if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, uint64_t>)
+                {
+                    if (!SceneSpecByUUID.contains(obj))
+                        return std::unexpected(ErrorCode::UUIDToSpecificationNotFound);
+
+                    return SceneSpecByUUID[obj];
+                }
+                else if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, std::string>)
+                {
+                    if (!SceneSpecByName.contains(obj))
+                        return std::unexpected(ErrorCode::NameToSpecificationNotFound);
+
+                    return SceneSpecByName[obj];
+                }
+            },
+            sceneIdentifier
+        );
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////
     // Constructor & Destructor
     ////////////////////////////////////////////////////////////////////////////////////
     Project::Project(const ProjectSpecification& specs)
@@ -23,14 +112,9 @@ namespace Ob::Project
         {
             auto startScene = LoadScene(m_Specification.StartScene);
             if (startScene.has_value())
-            {
-                m_SceneByName[startScene.value()->GetSpecification().Name] = startScene.value();
-                m_SceneByUUID[startScene.value()->GetSpecification().UUID] = startScene.value();
-            }
+                m_Scenes.AddScene(startScene.value());
             else
-            {
                 Logger::Error("Failed to load scene. Error code: {0}", Nano::Enum::Name(startScene.error()));
-            }
         }
     }
 
@@ -41,108 +125,70 @@ namespace Ob::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // Methods
     ////////////////////////////////////////////////////////////////////////////////////
-    std::expected<std::shared_ptr<Scene>, Project::LoadSceneError> Project::LoadScene(const SceneID& sceneIdentifier)
+    std::expected<std::shared_ptr<Scene>, ErrorCode> Project::LoadScene(const SceneID& sceneIdentifier)
     {
         // Load the specification
-        const auto sceneSpec = std::visit(
-            [&](auto&& obj) -> std::expected<const SceneSpecification*, LoadSceneError>
-            {
-                if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, uint64_t>)
-                {
-                    if (!m_SceneSpecByUUID.contains(obj))
-                        return std::unexpected(LoadSceneError::UUIDNotFound);
-
-                    return m_SceneSpecByUUID[obj];
-                }
-                else if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, std::string>)
-                {
-                    if (!m_SceneSpecByName.contains(obj))
-                        return std::unexpected(LoadSceneError::NameNotFound);
-
-                    return m_SceneSpecByName[obj];
-                }
-            },
-            sceneIdentifier
-        );
+        const auto sceneSpec = m_Scenes.GetSpecification(sceneIdentifier);
 
         // Handle error
         if (!sceneSpec.has_value())
             return std::unexpected(sceneSpec.error());
 
-        Logger::Info("[Project] Loading scene: \"{0}\" with id: {1}", sceneSpec.value()->Name, sceneSpec.value()->UUID);
+        Logger::Info("[Project] Loading scene: \"{0}\" with id: {1}", sceneSpec.value().Name, sceneSpec.value().UUID);
 
         // Load the scene
         return std::visit(
-            [&](auto&& obj) -> std::expected<std::shared_ptr<Scene>, LoadSceneError>
+            [&](auto&& obj) -> std::expected<std::shared_ptr<Scene>, ErrorCode>
             {
                 // Make sure we can load
                 if (obj == nullptr)
-                    return std::unexpected(LoadSceneError::NoLoadFunction);
+                    return std::unexpected(ErrorCode::NoLoadFunction);
 
                 if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, SceneSpecification::Load2DFn>)
                 {
-                    Scene2DTable table = obj(*sceneSpec.value());
-                    return std::make_shared<Scene2D>(*sceneSpec.value(), std::move(table));
+                    Scene2DTable table = obj(sceneSpec.value());
+                    return std::make_shared<Scene2D>(sceneSpec.value(), std::move(table));
                 }
                 else if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, SceneSpecification::Load3DFn>)
                 {
-                    Scene3DTable table = obj(*sceneSpec.value());
-                    return std::make_shared<Scene3D>(*sceneSpec.value(), std::move(table));
+                    Scene3DTable table = obj(sceneSpec.value());
+                    return std::make_shared<Scene3D>(sceneSpec.value(), std::move(table));
                 }
 
             },
-            sceneSpec.value()->LoadSceneFn
+            sceneSpec.value().LoadSceneFn
         );
     }
 
-    std::expected<void, Project::UnloadSceneError> Project::UnloadScene(const SceneID& sceneIdentifier)
+    std::expected<void, ErrorCode> Project::UnloadScene(const SceneID& sceneIdentifier)
     {
         // Load the specification
-        const auto sceneSpec = std::visit(
-            [&](auto&& obj) -> std::expected<const SceneSpecification*, UnloadSceneError>
-            {
-                if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, uint64_t>)
-                {
-                    if (!m_SceneSpecByUUID.contains(obj))
-                        return std::unexpected(UnloadSceneError::UUIDToSpecificationNotFound);
-
-                    return m_SceneSpecByUUID[obj];
-                }
-                else if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, std::string>)
-                {
-                    if (!m_SceneSpecByName.contains(obj))
-                        return std::unexpected(UnloadSceneError::NameToSpecificationNotFound);
-
-                    return m_SceneSpecByName[obj];
-                }
-            },
-            sceneIdentifier
-        );
+        const auto sceneSpec = m_Scenes.GetSpecification(sceneIdentifier);
 
         // Handle error
         if (!sceneSpec.has_value())
             return std::unexpected(sceneSpec.error());
 
-        Logger::Info("[Project] Unloading scene: \"{0}\" with id: {1}", sceneSpec.value()->Name, sceneSpec.value()->UUID);
+        Logger::Info("[Project] Unloading scene: \"{0}\" with id: {1}", sceneSpec.value().Name, sceneSpec.value().UUID);
 
         // Erase scene, if no more references shared_ptr should destroy the scene
         {
-            std::optional<UnloadSceneError> errorCode = {};
+            std::optional<ErrorCode> errorCode = {};
 
             // UUID
-            if (m_SceneByUUID.contains(sceneSpec.value()->UUID)) [[likely]]
-                m_SceneByUUID.erase(sceneSpec.value()->UUID);
+            if (m_Scenes.SceneByUUID.contains(sceneSpec.value().UUID)) [[likely]]
+                m_Scenes.SceneByUUID.erase(sceneSpec.value().UUID);
             else [[unlikely]]
-                errorCode = UnloadSceneError::UUIDToSceneNotFound;
+                errorCode = ErrorCode::UUIDToSceneNotFound;
 
             // Name
-            if (m_SceneByName.contains(sceneSpec.value()->Name)) [[likely]]
-                m_SceneByName.erase(sceneSpec.value()->Name);
+            if (m_Scenes.SceneByName.contains(sceneSpec.value().Name)) [[likely]]
+                m_Scenes.SceneByName.erase(sceneSpec.value().Name);
             else [[unlikely]]
             {
                 if (errorCode.has_value())
-                    return std::unexpected(UnloadSceneError::SceneNotFound); // Both UUID and Name not found
-                return std::unexpected(UnloadSceneError::NameToSceneNotFound);
+                    return std::unexpected(ErrorCode::SceneNotFound); // Both UUID and Name not found
+                return std::unexpected(ErrorCode::NameToSceneNotFound);
             }
         }
 
@@ -214,37 +260,14 @@ namespace Ob::Project
 
         // Move specifications into maps
         {
-            for (auto& scene : m_Specification.Scenes)
-            {
-                m_SceneSpecByName[scene.Name] = &scene;
-                m_SceneSpecByUUID[scene.UUID] = &scene;
-            }
+            for (const auto& scene : m_Specification.Scenes)
+                m_Scenes.AddSpecification(scene);
         }
 
-        // Verify start UUID // TODO: Verify all UUIDs?
+        // Verify start UUID
         {
-            std::visit(
-                [&](auto&& obj)
-                {
-                    if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, uint64_t>)
-                    {
-                        if (!m_SceneSpecByUUID.contains(obj))
-                        {
-                            Logger::Warning("[Project] StartScene has ID: {0}, but there is no corresponding scene. Resetting to first scene.", obj);
-                            m_Specification.StartScene = m_Specification.Scenes[0].UUID;
-                        }
-                    }
-                    else if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, std::string>)
-                    {
-                        if (!m_SceneSpecByName.contains(obj))
-                        {
-                            Logger::Warning("[Project] StartScene has name: \"{0}\", but there is no corresponding scene. Resetting to first scene.", obj);
-                            m_Specification.StartScene = m_Specification.Scenes[0].Name;
-                        }
-                    }
-                },
-                m_Specification.StartScene
-            );
+            if (!m_Scenes.SpecContains(m_Specification.StartScene))
+                Logger::Warning("[Project] StartScene id has no corresponding scene. Resetting to first scene.");
         }
     }
 

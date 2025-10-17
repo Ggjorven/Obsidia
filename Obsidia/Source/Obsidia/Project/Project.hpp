@@ -27,6 +27,30 @@ namespace Ob::Project
     using SceneID = std::variant<uint64_t, std::string>;
 
     ////////////////////////////////////////////////////////////////////////////////////
+    // SceneCollection
+    ////////////////////////////////////////////////////////////////////////////////////
+    struct SceneCollection
+    {
+    public:
+        std::unordered_map<uint64_t, SceneSpecification> SceneSpecByUUID = {};
+        std::unordered_map<std::string, SceneSpecification> SceneSpecByName = {};
+
+        std::unordered_map<uint64_t, std::shared_ptr<Scene>> SceneByUUID = {};
+        std::unordered_map<std::string, std::shared_ptr<Scene>> SceneByName = {};
+
+    public:
+        // Adders
+        void AddSpecification(const SceneSpecification& specs);
+        void AddScene(std::shared_ptr<Scene> scene);
+
+        // Getters
+        bool SpecContains(const SceneID& sceneIdentifier) const;
+        bool SceneLoaded(const SceneID& sceneIdentifier) const;
+
+        std::expected<SceneSpecification, ErrorCode> GetSpecification(const SceneID& sceneIdentifier);
+    };
+
+    ////////////////////////////////////////////////////////////////////////////////////
     // ProjectSpecification
     ////////////////////////////////////////////////////////////////////////////////////
     struct ProjectSpecification
@@ -53,16 +77,24 @@ namespace Ob::Project
     class Project
     {
     public:
-        enum class LoadSceneError : uint8_t { UUIDNotFound = 0, NameNotFound, NoLoadFunction };
-        enum class UnloadSceneError : uint8_t { UUIDToSpecificationNotFound = 0, NameToSpecificationNotFound, UUIDToSceneNotFound, NameToSceneNotFound, SceneNotFound };
-    public:
         // Constructor & Destructor
         Project(const ProjectSpecification& specs);
         ~Project();
 
         // Methods
-        std::expected<std::shared_ptr<Scene>, LoadSceneError> LoadScene(const SceneID& sceneIdentifier);
-        std::expected<void, UnloadSceneError> UnloadScene(const SceneID& sceneIdentifier);
+        /*
+         * @brief Loads scene into memory and holds a shared_ptr/reference to it.
+         * @param SceneID, which is used to load the specification to be able to get the load function.
+         * @return The Scene or an ErrorCode: UUIDToSpecificationNotFound, NameToSpecificationNotFound or NoLoadFunction
+         */
+        std::expected<std::shared_ptr<Scene>, ErrorCode> LoadScene(const SceneID& sceneIdentifier);
+
+        /*
+         * @brief Removes scene from internal maps referencing scene
+         * @param SceneID, which is used to unload the proper scene.
+         * @return Nothing or An ErrorCode: UUIDToSpecificationNotFound, NameToSpecificationNotFound, UUIDToSceneNotFound, NameToSceneNotFound or SceneNotFound
+         */
+        std::expected<void, ErrorCode> UnloadScene(const SceneID& sceneIdentifier);
 
         // Getters
         inline const ProjectSpecification& GetSpecification() { return m_Specification; }
@@ -80,11 +112,7 @@ namespace Ob::Project
     private:
         ProjectSpecification m_Specification;
 
-        std::unordered_map<uint64_t, SceneSpecification*> m_SceneSpecByUUID = {};
-        std::unordered_map<std::string, SceneSpecification*> m_SceneSpecByName = {};
-
-        std::unordered_map<uint64_t, std::shared_ptr<Scene>> m_SceneByUUID = {};
-        std::unordered_map<std::string, std::shared_ptr<Scene>> m_SceneByName = {};
+        SceneCollection m_Scenes = {};
 
         friend class Application;
     };
