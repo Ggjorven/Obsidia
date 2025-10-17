@@ -24,7 +24,7 @@ namespace Ob
 
     Application::~Application()
     {
-        delete m_Specification.Project;
+        m_Specification.Project.reset();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -41,8 +41,12 @@ namespace Ob
             // Update
             {
                 float currentTime = static_cast<float>(m_Window.GetWindowTime());
-                m_Specification.Project->OnUpdate(currentTime - lastTime);
+                float deltaTime = currentTime - lastTime;
+                m_Specification.Project->OnUpdate(deltaTime);
                 lastTime = static_cast<float>(currentTime);
+
+                if (m_Specification.UpdateCallback) [[likely]]
+                    m_Specification.UpdateCallback(deltaTime);
             }
 
             // Render
@@ -50,6 +54,9 @@ namespace Ob
                 // TODO: Begin
                 m_Specification.Project->OnRender();
                 // TODO: End
+
+                if (m_Specification.RenderCallback) [[likely]]
+                    m_Specification.RenderCallback();
             }
 
             m_Window.SwapBuffers();
@@ -66,6 +73,9 @@ namespace Ob
         //handler.Handle<Obsidian::WindowResizeEvent>([&](Obsidian::WindowResizeEvent& wre) { m_Window.Close(); }); // TODO: Resize renderer
 
         m_Specification.Project->OnEvent(e);
+
+        if (m_Specification.EventCallback) [[likely]]
+            m_Specification.EventCallback(e);
     }
 
 }

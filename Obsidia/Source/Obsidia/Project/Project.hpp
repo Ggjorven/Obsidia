@@ -13,8 +13,18 @@
 #include <expected>
 #include <unordered_map>
 
+namespace Ob
+{
+    class Application;
+}
+
 namespace Ob::Project
 {
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // SceneID
+    ////////////////////////////////////////////////////////////////////////////////////
+    using SceneID = std::variant<uint64_t, std::string>;
 
     ////////////////////////////////////////////////////////////////////////////////////
     // ProjectSpecification
@@ -25,7 +35,7 @@ namespace Ob::Project
         std::string Name = {};
 
         std::vector<SceneSpecification> Scenes = {};
-        std::variant<uint64_t, std::string> StartScene = 0ull;
+        SceneID StartScene = 0ull;
 
     public:
         // Setters
@@ -43,25 +53,29 @@ namespace Ob::Project
     class Project
     {
     public:
+        enum class LoadSceneError : uint8_t { UUIDNotFound = 0, NameNotFound, NoLoadFunction };
+        enum class UnloadSceneError : uint8_t { UUIDToSpecificationNotFound = 0, NameToSpecificationNotFound, UUIDToSceneNotFound, NameToSceneNotFound, SceneNotFound };
+    public:
         // Constructor & Destructor
         Project(const ProjectSpecification& specs);
         ~Project();
 
         // Methods
-        void OnUpdate(float deltaTime);
-        void OnRender();
-        void OnEvent(const Obsidian::Event& e);
+        std::expected<std::shared_ptr<Scene>, LoadSceneError> LoadScene(const SceneID& sceneIdentifier);
+        std::expected<void, UnloadSceneError> UnloadScene(const SceneID& sceneIdentifier);
 
         // Getters
         inline const ProjectSpecification& GetSpecification() { return m_Specification; }
 
     private:
-        enum class LoadSceneError : uint8_t { UUIDNotFound = 0, NameNotFound, NoLoadFunction };
+        // Private methods
+        void OnUpdate(float deltaTime);
+        void OnRender();
+        void OnEvent(const Obsidian::Event& e);
 
     private:
         // Private methods
         void ProcessScenes();
-        std::expected<std::shared_ptr<Scene>, LoadSceneError> LoadScene(const std::variant<uint64_t, std::string>& sceneIdentifier);
 
     private:
         ProjectSpecification m_Specification;
@@ -71,6 +85,8 @@ namespace Ob::Project
 
         std::unordered_map<uint64_t, std::shared_ptr<Scene>> m_SceneByUUID = {};
         std::unordered_map<std::string, std::shared_ptr<Scene>> m_SceneByName = {};
+
+        friend class Application;
     };
 
 }

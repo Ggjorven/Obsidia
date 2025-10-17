@@ -17,10 +17,13 @@ int main(const int argc, const char* argv[])
 				.SetName("MainMenu")
 				.SetUUID(10)
 
-				//.SetLoadSceneFn([](const Project::SceneSpecification& specs) -> Project::Scene2DTable
-				//{
-				//
-				//})
+				.SetLoadSceneFn([](const Project::SceneSpecification& specs) -> Project::Scene2DTable
+				{
+					Project::Scene2DTable table = {};
+					int a;
+					int b;
+					return std::move(table);
+				})
 			)
 			
 			.SetStartScene(10)

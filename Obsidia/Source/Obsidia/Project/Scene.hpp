@@ -91,12 +91,16 @@ namespace Ob::Project
 
         inline SceneSpecification& SetLoadSceneFn(const Load2DFn& fn) { LoadSceneFn = fn; return *this; }
         inline SceneSpecification& SetLoadSceneFn(const Load3DFn& fn) { LoadSceneFn = fn; return *this; }
+
+        // Getters
+        inline bool Is2D() const { return std::holds_alternative<Load2DFn>(LoadSceneFn); }
+        inline bool Is3D() const { return std::holds_alternative<Load3DFn>(LoadSceneFn); }
     };
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Scene
     ////////////////////////////////////////////////////////////////////////////////////
-    class Scene
+    class Scene // Note: A base scene class with functionality used in all scenes
     {
     public:
         // Constructor & Destructor
