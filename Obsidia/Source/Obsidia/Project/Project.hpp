@@ -13,11 +13,6 @@
 #include <expected>
 #include <unordered_map>
 
-namespace Ob
-{
-    class Application;
-}
-
 namespace Ob::Project
 {
 
@@ -82,6 +77,18 @@ namespace Ob::Project
         ~Project();
 
         // Methods
+        void OnUpdate(float deltaTime);
+        void OnRender();
+        void OnEvent(const Obsidian::Event& e);
+
+
+        // Getters
+        inline const ProjectSpecification& GetSpecification() { return m_Specification; }
+
+    private:
+        // Private methods
+        void ProcessScenes();
+
         /*
          * @brief Loads scene into memory and holds a shared_ptr/reference to it.
          * @param SceneID, which is used to load the specification to be able to get the load function.
@@ -96,25 +103,10 @@ namespace Ob::Project
          */
         std::expected<void, ErrorCode> UnloadScene(const SceneID& sceneIdentifier);
 
-        // Getters
-        inline const ProjectSpecification& GetSpecification() { return m_Specification; }
-
-    private:
-        // Private methods
-        void OnUpdate(float deltaTime);
-        void OnRender();
-        void OnEvent(const Obsidian::Event& e);
-
-    private:
-        // Private methods
-        void ProcessScenes();
-
     private:
         ProjectSpecification m_Specification;
 
         SceneCollection m_Scenes = {};
-
-        friend class Application;
     };
 
 }

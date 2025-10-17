@@ -109,6 +109,11 @@ namespace Ob::Project
         Scene(const SceneSpecification& specs, const SceneTable& table);
         ~Scene();
 
+        // Methods
+        virtual void OnUpdate(float deltaTime) = 0;
+        virtual void OnRender() = 0;
+        virtual void OnEvent(const Obsidian::Event& e) = 0;
+
         // Getters
         inline const SceneSpecification& GetSpecification() { return m_Specification; }
 
@@ -116,57 +121,11 @@ namespace Ob::Project
         // Private methods
         void CreateVisualLayers();
 
-        virtual void OnUpdate(float deltaTime) = 0;
-        virtual void OnRender() = 0;
-        virtual void OnEvent(const Obsidian::Event& e) = 0;
-
     private:
         SceneSpecification m_Specification;
         SceneTable m_GlobalTable;
 
         std::vector<VisualLayer> m_VisualLayers;
-
-        friend class Project;
-    };
-
-    ////////////////////////////////////////////////////////////////////////////////////
-    // Scene2D
-    ////////////////////////////////////////////////////////////////////////////////////
-    class Scene2D : public Scene
-    {
-    public:
-        // Constructor & Destructor
-        Scene2D(const SceneSpecification& specs, Scene2DTable&& table);
-        ~Scene2D();
-
-    private:
-        // Private methods
-        void OnUpdate(float deltaTime) override;
-        void OnRender() override;
-        void OnEvent(const Obsidian::Event& e) override;
-
-    private:
-        Scene2DTable m_Table;
-    };
-
-    ////////////////////////////////////////////////////////////////////////////////////
-    // Scene3D
-    ////////////////////////////////////////////////////////////////////////////////////
-    class Scene3D : public Scene
-    {
-    public:
-        // Constructor & Destructor
-        Scene3D(const SceneSpecification& specs, Scene3DTable&& table);
-        ~Scene3D();
-
-    private:
-        // Private methods
-        void OnUpdate(float deltaTime) override;
-        void OnRender() override;
-        void OnEvent(const Obsidian::Event& e) override;
-
-    private:
-        Scene3DTable m_Table;
     };
 
 }
