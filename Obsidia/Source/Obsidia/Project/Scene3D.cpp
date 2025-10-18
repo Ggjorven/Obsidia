@@ -30,7 +30,7 @@ namespace Ob::Project
     {
     }
 
-    void Scene3D::OnEvent(const Obsidian::Event& e)
+    void Scene3D::OnEvent(const Event& e)
     {
     }
 

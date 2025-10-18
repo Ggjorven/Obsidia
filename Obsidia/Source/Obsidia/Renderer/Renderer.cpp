@@ -73,6 +73,15 @@ namespace Ob
     Renderer::~Renderer()
     {
         m_Device.Wait();
+
+        for (uint8_t i = 0; i < m_CompositeLists.size(); i++)
+        {
+            m_GraphicsListPools[i]->FreeList(m_CompositeLists[i].Get());
+            m_SwapChain.FreePool(m_GraphicsListPools[i]);
+        }
+
+        m_Device.DestroyRenderpass(m_CompositePass);
+
         m_Device.DestroySwapchain(m_SwapChain);
 
         DestroyQueue();
@@ -149,8 +158,7 @@ namespace Ob
     void Renderer::Resize(uint32_t width, uint32_t height)
     {
         s_Instance->m_SwapChain.Resize(width, height);
-
-        // TODO: Resize visuallayers
+        s_Instance->m_CompositePass.ResizeFramebuffers(); // Note: Resizes to swapchain size
     }
 
     ////////////////////////////////////////////////////////////////////////////////////

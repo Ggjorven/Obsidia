@@ -52,6 +52,10 @@ namespace Ob::Project
 
     VisualLayer::~VisualLayer()
     {
+        for (uint8_t i = 0; i < m_CommandLists.size(); i++)
+            Renderer::GetGraphicsPool(i).FreeList(m_CommandLists[i].Get());
+
+        Renderer::GetDevice().DestroyRenderpass(m_Renderpass);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -86,6 +90,11 @@ namespace Ob::Project
             .SetWaitForSwapchainImage((m_Specification.Level == 1)) // Note: Only VisualLayer 1 waits on the image
             .SetOnFinishMakeSwapchainPresentable(false)
         );
+    }
+
+    void VisualLayer::Resize()
+    {
+        m_Renderpass.ResizeFramebuffers();
     }
 
 }

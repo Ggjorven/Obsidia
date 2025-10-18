@@ -40,9 +40,15 @@ namespace Ob::Project
         }
     }
 
-    void Scene2D::OnEvent(const Obsidian::Event& e)
+    void Scene2D::OnEvent(const Event& e)
     {
-        //Nano::Events::EventHandler
+        Nano::Events::EventHandler handler(e);
+        handler.Handle<ResizeEvent>([&](const ResizeEvent& re) 
+        {
+            (void)re;
+            for (auto& visualLayer : m_VisualLayers)
+                visualLayer.Resize();
+        });
     }
 
 }

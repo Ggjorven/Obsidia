@@ -102,6 +102,18 @@ namespace Ob::Project
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
+    // Other
+    ////////////////////////////////////////////////////////////////////////////////////
+    void SceneCollection::Clear()
+    {
+        SceneSpecByUUID.clear();
+        SceneSpecByName.clear();
+        SceneByUUID.clear();
+        SceneByName.clear();
+        ActiveScene = nullptr;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////
     // Constructor & Destructor
     ////////////////////////////////////////////////////////////////////////////////////
     Project::Project(const ProjectSpecification& specs)
@@ -139,6 +151,7 @@ namespace Ob::Project
 
     Project::~Project()
     {
+        m_Scenes.Clear();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -154,7 +167,7 @@ namespace Ob::Project
         m_Scenes.ActiveScene->OnRender();
     }
 
-    void Project::OnEvent(const Obsidian::Event& e)
+    void Project::OnEvent(const Event& e)
     {
         m_Scenes.ActiveScene->OnEvent(e);
     }

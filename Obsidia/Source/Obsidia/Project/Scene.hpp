@@ -5,6 +5,7 @@
 
 #include "Obsidia/ECS/Registry.hpp"
 
+#include "Obsidia/Project/Events.hpp"
 #include "Obsidia/Project/Renderer/VisualLayer.hpp"
 
 #include <Obsidian/Core/Events.hpp>
@@ -112,7 +113,7 @@ namespace Ob::Project
         // Methods
         virtual void OnUpdate(float deltaTime) = 0;
         virtual void OnRender() = 0;
-        virtual void OnEvent(const Obsidian::Event& e) = 0;
+        virtual void OnEvent(const Event& e) = 0;
 
         // Getters
         inline const SceneSpecification& GetSpecification() { return m_Specification; }

@@ -3,6 +3,7 @@
 #include "Obsidia/Core/Core.hpp"
 
 #include "Obsidia/Project/Scene.hpp"
+#include "Obsidia/Project/Events.hpp"
 
 #include <cstdint>
 
@@ -22,7 +23,7 @@ namespace Ob::Project
         // Methods
         void OnUpdate(float deltaTime) override;
         void OnRender() override;
-        void OnEvent(const Obsidian::Event& e) override;
+        void OnEvent(const Event& e) override;
 
     private:
         Scene2DTable m_Table;

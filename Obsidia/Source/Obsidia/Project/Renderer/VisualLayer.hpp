@@ -41,6 +41,9 @@ namespace Ob::Project
         void Begin();
         void End(std::span<const Obsidian::CommandList*> waitOn);
 
+        // Note: Resizes to underlying image size
+        void Resize();
+
         // Getters
         inline const VisualLayerSpecification& GetSpecification() { return m_Specification; }
         inline const Obsidian::CommandList& GetCommandList(uint8_t frame) const { OBSIDIA_ASSERT((frame < m_CommandLists.size()), "Frame exceeds size."); return m_CommandLists[frame].Get(); }

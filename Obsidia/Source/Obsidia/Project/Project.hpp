@@ -3,6 +3,7 @@
 #include "Obsidia/Core/Core.hpp"
 
 #include "Obsidia/Project/Scene.hpp"
+#include "Obsidia/Project/Events.hpp"
 
 #include <Obsidian/Core/Events.hpp>
 
@@ -46,6 +47,9 @@ namespace Ob::Project
         bool SceneLoaded(const SceneID& sceneIdentifier) const;
 
         std::expected<SceneSpecification, ErrorCode> GetSpecification(const SceneID& sceneIdentifier);
+
+        // Other
+        void Clear();
     };
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -82,8 +86,7 @@ namespace Ob::Project
         // Methods
         void OnUpdate(float deltaTime);
         void OnRender();
-        void OnEvent(const Obsidian::Event& e);
-
+        void OnEvent(const Event& e);
 
         // Getters
         inline const ProjectSpecification& GetSpecification() { return m_Specification; }
@@ -94,14 +97,14 @@ namespace Ob::Project
 
         /*
          * @brief Loads scene into memory and holds a shared_ptr/reference to it.
-         * @param SceneID, which is used to load the specification to be able to get the load function.
+         * @param SceneID which is used to load the specification to be able to get the load function.
          * @return The Scene or an ErrorCode: UUIDToSpecificationNotFound, NameToSpecificationNotFound or NoLoadFunction
          */
         std::expected<std::shared_ptr<Scene>, ErrorCode> LoadScene(const SceneID& sceneIdentifier);
 
         /*
          * @brief Removes scene from internal maps referencing scene
-         * @param SceneID, which is used to unload the proper scene.
+         * @param SceneID which is used to unload the proper scene.
          * @return Nothing or An ErrorCode: UUIDToSpecificationNotFound, NameToSpecificationNotFound, UUIDToSceneNotFound, NameToSceneNotFound or SceneNotFound
          */
         std::expected<void, ErrorCode> UnloadScene(const SceneID& sceneIdentifier);
