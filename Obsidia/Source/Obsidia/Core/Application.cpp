@@ -27,9 +27,6 @@ namespace Ob
 
     Application::~Application()
     {
-        m_Project.reset();
-
-        m_Renderer.Destroy();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
