@@ -4,6 +4,8 @@
 #include "Obsidia/Core/Core.hpp"
 #include "Obsidia/Core/Logger.hpp"
 
+#include "Obsidia/Renderer/Renderer.hpp"
+
 namespace Ob::Project
 {
 
@@ -28,10 +30,19 @@ namespace Ob::Project
 
     void Scene2D::OnRender()
     {
+        for (auto& visualLayer : m_VisualLayers)
+        {
+            Renderer::BeginLayer(visualLayer);
+
+            // Note: Render objects
+
+            Renderer::EndLayer(visualLayer);
+        }
     }
 
     void Scene2D::OnEvent(const Obsidian::Event& e)
     {
+        //Nano::Events::EventHandler
     }
 
 }

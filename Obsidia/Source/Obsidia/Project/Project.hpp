@@ -33,10 +33,13 @@ namespace Ob::Project
         std::unordered_map<uint64_t, std::shared_ptr<Scene>> SceneByUUID = {};
         std::unordered_map<std::string, std::shared_ptr<Scene>> SceneByName = {};
 
+        std::shared_ptr<Scene> ActiveScene = nullptr;
+
     public:
         // Adders
         void AddSpecification(const SceneSpecification& specs);
         void AddScene(std::shared_ptr<Scene> scene);
+        inline void MakeActive(std::shared_ptr<Scene> scene) { ActiveScene = scene; }
 
         // Getters
         bool SpecContains(const SceneID& sceneIdentifier) const;

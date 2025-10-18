@@ -27,7 +27,7 @@ namespace Ob
         // FUTURE TODO: Window flags
 
         // Project/Engine
-        std::shared_ptr<Project::Project> Project = nullptr;
+        Project::ProjectSpecification Project = {};
 
     public:
         // Setters
@@ -36,7 +36,7 @@ namespace Ob
         inline constexpr ApplicationSpecification& SetWidthAndHeight(uint32_t width, uint32_t height) { Width = width; Height = height; return *this; }
         inline ApplicationSpecification& SetTitle(const std::string& title) { Title = title; return *this; }
 
-        inline ApplicationSpecification& SetProject(const Project::ProjectSpecification& specs) { Project = std::make_shared<Project::Project>(specs); return *this; }
+        inline ApplicationSpecification& SetProject(const Project::ProjectSpecification& specs) { Project = specs; return *this; }
     };
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -54,6 +54,7 @@ namespace Ob
 
         // Getters
         inline const ApplicationSpecification& GetSpecification() { return m_Specification; }
+        inline Obsidian::Window& GetWindow() { return m_Window; }
 
     private:
         // Private methods
@@ -62,8 +63,12 @@ namespace Ob
     private:
         ApplicationSpecification m_Specification;
 
+        // Engine/Window
         Obsidian::Window m_Window;
         Nano::Memory::DeferredConstruct<Renderer, true> m_Renderer;
+
+        // Project
+        std::shared_ptr<Project::Project> m_Project;
     };
 
 }

@@ -112,13 +112,29 @@ namespace Ob::Project
         ProcessScenes();
 
         // Load start scene
+        do
         {
             auto startScene = LoadScene(m_Specification.StartScene);
             if (startScene.has_value())
+            {
                 m_Scenes.AddScene(startScene.value());
+                m_Scenes.MakeActive(startScene.value());
+            }
             else
+            {
                 Logger::Error("Failed to load scene. Error code: {0}", Nano::Enum::Name(startScene.error()));
-        }
+
+                // Create a new start scene
+                {
+                    uint64_t uuid = Nano::Random::Random::UInt64();
+                    m_Scenes.AddSpecification(SceneSpecification()
+                        .SetName("Scene-" + uuid)
+                        .SetUUID(uuid)
+                    );
+                    m_Specification.StartScene = uuid;
+                }
+            }
+        } while (!m_Scenes.ActiveScene);
     }
 
     Project::~Project()
@@ -130,14 +146,17 @@ namespace Ob::Project
     ////////////////////////////////////////////////////////////////////////////////////
     void Project::OnUpdate(float deltaTime)
     {
+        m_Scenes.ActiveScene->OnUpdate(deltaTime);
     }
 
     void Project::OnRender()
     {
+        m_Scenes.ActiveScene->OnRender();
     }
 
     void Project::OnEvent(const Obsidian::Event& e)
     {
+        m_Scenes.ActiveScene->OnEvent(e);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////

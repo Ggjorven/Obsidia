@@ -121,7 +121,7 @@ namespace Ob::Project
         // Private methods
         void CreateVisualLayers();
 
-    private:
+    protected:
         SceneSpecification m_Specification;
         SceneTable m_GlobalTable;
 

@@ -19,13 +19,14 @@ namespace Ob
             .SetEventCallback([this](Obsidian::Event e) { OnEvent(e); })
         )
         , m_Renderer(m_Window, true) // TODO: Make VSync a parameter
+        , m_Project(new Project::Project(specs.Project))
     {
-        OBSIDIA_ASSERT(specs.Project, "[Application] To create an application a project must be specified.");
     }
 
     Application::~Application()
     {
-        m_Specification.Project.reset();
+        m_Renderer.Destroy();
+        m_Project.reset();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -41,14 +42,14 @@ namespace Ob
             {
                 float currentTime = static_cast<float>(m_Window.GetWindowTime());
                 float deltaTime = currentTime - lastTime;
-                m_Specification.Project->OnUpdate(deltaTime);
+                m_Project->OnUpdate(deltaTime);
                 lastTime = static_cast<float>(currentTime);
             }
 
             // Render
             {
                 m_Renderer->Begin();
-                m_Specification.Project->OnRender();
+                m_Project->OnRender();
                 m_Renderer->End();
             }
 
@@ -67,11 +68,10 @@ namespace Ob
         { 
             (void)wce; 
             m_Window.Close(); 
-            m_Renderer.Destroy();
         });
         handler.Handle<Obsidian::WindowResizeEvent>([&](Obsidian::WindowResizeEvent& wre) { m_Renderer->Resize(wre.GetWidth(), wre.GetHeight()); });
 
-        m_Specification.Project->OnEvent(e);
+        m_Project->OnEvent(e);
     }
 
 }
