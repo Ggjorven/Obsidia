@@ -36,15 +36,6 @@ function remove_from_table(dest, filter)
 	return dest
 end
 
-function remove_from_table_absolute(dest, value)
-    for i = #dest, 1, -1 do
-        if dest[i] == value then
-            table.remove(dest, i)
-        end
-    end
-    return dest
-end
-
 function copy_table(tbl)
     if type(tbl) ~= "table" then 
 		return tbl 
@@ -81,7 +72,7 @@ local Dependencies =
 	Photon = local_require("Vendor/Photon/Photon/Dependencies.lua").Photon,
 
     -- Internal dependencies
-    Obsidia = 
+    Rapid = 
     {
 		IncludeDir = {},
         LibDir = {},
@@ -96,31 +87,31 @@ local Dependencies =
 -- Append Dependencies
 ------------------------------------------------------------------------------
 -- IncludeDirs
-append_to_table(Dependencies.Obsidia.IncludeDir, this_directory() .. "Obsidia/Source/")
-append_to_table(Dependencies.Obsidia.IncludeDir, Dependencies.Nano.IncludeDir)
-append_to_table(Dependencies.Obsidia.IncludeDir, remove_from_table(Dependencies.Obsidian.IncludeDir, "Nano"))
-append_to_table(Dependencies.Obsidia.IncludeDir, remove_from_table(Dependencies.Photon.IncludeDir, "Nano"))
+append_to_table(Dependencies.Rapid.IncludeDir, this_directory() .. "Rapid/Source/")
+append_to_table(Dependencies.Rapid.IncludeDir, Dependencies.Nano.IncludeDir)
+append_to_table(Dependencies.Rapid.IncludeDir, remove_from_table(Dependencies.Obsidian.IncludeDir, "Nano"))
+append_to_table(Dependencies.Rapid.IncludeDir, remove_from_table(Dependencies.Photon.IncludeDir, "Nano"))
 
 -- LibDir
-append_to_table(Dependencies.Obsidia.LibDir, Dependencies.Obsidian.LibDir)
-append_to_table(Dependencies.Obsidia.LibDir, Dependencies.Photon.LibDir)
+append_to_table(Dependencies.Rapid.LibDir, Dependencies.Obsidian.LibDir)
+append_to_table(Dependencies.Rapid.LibDir, Dependencies.Photon.LibDir)
 
 -- LibNames
-append_to_table(Dependencies.Obsidia.LibName, "Obsidia")
-append_to_table(Dependencies.Obsidia.LibName, "Obsidian")
-append_to_table(Dependencies.Obsidia.LibName, "Photon")
+append_to_table(Dependencies.Rapid.LibName, "Rapid")
+append_to_table(Dependencies.Rapid.LibName, "Obsidian")
+append_to_table(Dependencies.Rapid.LibName, "Photon")
 
 -- PostBuildCommands
-append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Obsidian.PostBuildCommands)
-append_to_table(Dependencies.Obsidia.PostBuildCommands, Dependencies.Photon.PostBuildCommands)
+append_to_table(Dependencies.Rapid.PostBuildCommands, Dependencies.Obsidian.PostBuildCommands)
+append_to_table(Dependencies.Rapid.PostBuildCommands, Dependencies.Photon.PostBuildCommands)
 
 -- Defines
-append_to_table(Dependencies.Obsidia.Defines, Dependencies.Nano.Defines)
+append_to_table(Dependencies.Rapid.Defines, Dependencies.Nano.Defines)
 
 if OBSIDIAN_GRAPHICS_API == "vulkan" then
-    append_to_table(Dependencies.Obsidia.Defines, "OB_API_VULKAN")
+    append_to_table(Dependencies.Rapid.Defines, "OB_API_VULKAN")
 elseif OBSIDIAN_GRAPHICS_API == "dx12" then
-    append_to_table(Dependencies.Obsidia.Defines, "OB_API_DX12")
+    append_to_table(Dependencies.Rapid.Defines, "OB_API_DX12")
 else
     error("Invalid API")
 end

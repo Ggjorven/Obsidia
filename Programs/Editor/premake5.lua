@@ -34,17 +34,17 @@ project "Editor"
 		"Source",
 	}
 
-	includedirs(Dependencies.Obsidia.IncludeDir) -- Note: Includes Source/Obsidia
-	libdirs(Dependencies.Obsidia.LibDir)
-	postbuildcommands(Dependencies.Obsidia.PostBuildCommands)
-	defines(Dependencies.Obsidia.Defines)
+	includedirs(Dependencies.Rapid.IncludeDir) -- Note: Includes Source/Rapid
+	libdirs(Dependencies.Rapid.LibDir)
+	postbuildcommands(Dependencies.Rapid.PostBuildCommands)
+	defines(Dependencies.Rapid.Defines)
 
 	filter "system:windows"
 		systemversion "latest"
 		staticruntime "on"
 		editandcontinue "off"
 
-		links("Obsidia")
+		links("Rapid")
 
         defines
         {
@@ -56,7 +56,7 @@ project "Editor"
 		staticruntime "on"
 
 		-- Note: On linux, it needs to relink all dependencies
-		links("Obsidia")
+		links("Rapid")
 		links(Dependencies.Obsidian.LibName)
 		links(Dependencies.Photon.LibName)
 
@@ -64,7 +64,7 @@ project "Editor"
 		systemversion(MacOSVersion)
 		staticruntime "on"
 
-		links("Obsidia")
+		links("Rapid")
 
 	filter "action:vs*"
 		buildoptions { "/Zc:preprocessor" }

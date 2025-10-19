@@ -1,6 +1,6 @@
-#include <Obsidia/Core/Window.hpp>
+#include <Rapid/Core/Window.hpp>
 
-using namespace Ob;
+using namespace Rapid;
 
 int main(const int argc, const char* argv[])
 {

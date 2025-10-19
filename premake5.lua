@@ -60,7 +60,7 @@ end)
 MacOSVersion = "14.5"
 OutputDir = "%{cfg.buildcfg}-%{cfg.system}"
 
-workspace "Obsidia"
+workspace "Rapid"
 	architecture "x86_64"
 	startproject "Editor"
 
@@ -81,8 +81,8 @@ group "Dependencies"
 	include "Vendor/Photon/Photon/premake5-external"
 group ""
 
-group "Obsidia"
-	include "Obsidia"
+group "Rapid"
+	include "Rapid"
 group ""
 
 include "Programs/Editor"

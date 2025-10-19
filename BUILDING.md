@@ -4,8 +4,8 @@
 
 1. Clone the repository:
     ```sh
-    git clone --recursive https://github.com/ggjorven/Obsidia.git
-    cd Obsidia
+    git clone --recursive https://github.com/ggjorven/Rapid.git
+    cd Rapid
     ```
 
 2. Navigate to the scripts folder:
@@ -32,8 +32,8 @@
 
 1. Clone the repository:
     ```sh
-    git clone --recursive https://github.com/ggjorven/Obsidia.git
-    cd Obsidia
+    git clone --recursive https://github.com/ggjorven/Rapid.git
+    cd Rapid
     ```
 
 2. Navigate to the scripts folder:
@@ -57,8 +57,8 @@
 
 1. Clone the repository:
     ```sh
-    git clone --recursive https://github.com/ggjorven/Obsidia.git
-    cd Obsidia
+    git clone --recursive https://github.com/ggjorven/Rapid.git
+    cd Rapid
     ```
 
 2. Navigate to the scripts folder:
@@ -83,12 +83,12 @@
 ### Windows
 - Visual Studio 17 2022:
     1. Navigate to the root of the directory
-    2. Open the Obsidia.sln file
+    2. Open the Rapid.sln file
     3. Start building in your desired configuration
-    4. Build files can be in the Binaries/%Config%-windows/Sandbox/ folder.
-    5. (Optional) Open a terminal and run the Sandbox project:
+    4. Build files can be found in the bin/%Config%-windows/Editor/ folder.
+    5. (Optional) Open a terminal and run the Editor project:
         ```sh
-        ./Sandbox.exe 
+        ./Editor.exe 
         ```
 
 - MinGW Make:
@@ -99,10 +99,10 @@
         make config=Release
         ```
 
-    5. Build files can be in the Binaries/%Config%-linux/Sandbox/ folder.
-    6. (Optional) Open a terminal and run the Sandbox project:
+    5. Build files can be in the bin/%Config%-linux/Editor/ folder.
+    6. (Optional) Open a terminal and run the Editor project:
         ```sh
-        ./Sandbox.exe 
+        ./Editor.exe 
         ```
 
 ### Linux
@@ -115,21 +115,21 @@
     make config=release
     ```
 
-5. Build files can be in the Binaries/%Config%-linux/Sandbox/ folder.
-6. (Optional) Open a terminal and run the Sandbox project:
+5. Build files can be in the bin/%Config%-linux/Editor/ folder.
+6. (Optional) Open a terminal and run the Editor project:
 
     ```sh
-    chmod +x Sandbox
-    ./Sandbox
+    chmod +x Editor
+    ./Editor
     ```
 
 ### MacOS
 1. Navigate to the root of the directory
-2. Open the Obsidia.xcworkspace file
+2. Open the Rapid.xcworkspace file
 3. Start building in your desired configuration
-4. Build files can be in the Binaries/%Config%-macosx/Sandbox/ folder.
-5. (Optional) Open a terminal and run the Sandbox project:
+4. Build files can be in the bin/%Config%-macosx/Editor/ folder.
+5. (Optional) Open a terminal and run the Editor project:
 
     ```sh
-    ./Sandbox
+    ./Editor
     ```

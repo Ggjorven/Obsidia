@@ -1,7 +1,7 @@
 #include <Obsidia/Core/Core.hpp>
 #include <Obsidia/Core/Logger.hpp>
 
-using namespace Ob;
+using namespace Rapid;
 
 int main(const int argc, const char* argv[])
 {

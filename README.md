@@ -1,4 +1,4 @@
-# Obsidia
+# Rapid
 
 // TODO: Small summary
 

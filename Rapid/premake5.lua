@@ -1,9 +1,9 @@
-local Dependencies = local_require("../../Dependencies.lua")
+local Dependencies = local_require("../Dependencies.lua")
 local MacOSVersion = MacOSVersion or "14.5"
 local OutputDir = OutputDir or "%{cfg.buildcfg}-%{cfg.system}"
 
-project "Runtime"
-	kind "ConsoleApp"
+project "Rapid"
+	kind "StaticLib"
 	language "C++"
 	cppdialect "C++23"
 	staticruntime "On"
@@ -15,12 +15,16 @@ project "Runtime"
 	targetdir ("%{wks.location}/bin/" .. OutputDir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin-int/" .. OutputDir .. "/%{prj.name}")
 
+	-- Note: VS2022/Make only need the pchheader filename
+	pchheader "rppch.h"
+	pchsource "Source/Rapid/rppch.cpp"
+
 	files
 	{
-		"Source/**.h",
-		"Source/**.hpp",
-		"Source/**.inl",
-		"Source/**.cpp"
+		"Source/Rapid/**.h",
+		"Source/Rapid/**.hpp",
+		"Source/Rapid/**.inl",
+		"Source/Rapid/**.cpp"
 	}
 
 	defines
@@ -32,19 +36,19 @@ project "Runtime"
 	includedirs
 	{
 		"Source",
+		"Source/Rapid",
 	}
 
-	includedirs(Dependencies.Rapid.IncludeDir) -- Note: Includes Source/Rapid
+	includedirs(Dependencies.Rapid.IncludeDir)
 	libdirs(Dependencies.Rapid.LibDir)
-	postbuildcommands(Dependencies.Rapid.PostBuildCommands)
+	links(remove_from_table(Dependencies.Rapid.LibName, "Rapid"))
+	--postbuildcommands(Dependencies.Rapid.PostBuildCommands)
 	defines(Dependencies.Rapid.Defines)
 
 	filter "system:windows"
 		systemversion "latest"
 		staticruntime "on"
 		editandcontinue "off"
-
-		links("Rapid")
 
         defines
         {
@@ -55,8 +59,9 @@ project "Runtime"
 		systemversion "latest"
 		staticruntime "on"
 
-		-- Note: On linux, it needs to relink all dependencies
-		links("Rapid")
+		-- Note: For some reason gmake, now also needs full pchheader path
+		pchheader "Source/Rapid/rppch.h"
+
 		links(Dependencies.Obsidian.LibName)
 		links(Dependencies.Photon.LibName)
 
@@ -64,25 +69,29 @@ project "Runtime"
 		systemversion(MacOSVersion)
 		staticruntime "on"
 
-		links("Rapid")
-
 	filter "action:vs*"
 		buildoptions { "/Zc:preprocessor" }
 
 	filter "action:xcode*"
+		-- Note: XCode only needs the full pchheader path
+		pchheader "Source/Obsidia/rppch.h"
+
 		-- Note: If we don't add the header files to the externalincludedirs
 		-- we can't use <angled> brackets to include files.
 		externalincludedirs(includedirs())
 
 	filter "configurations:Debug"
+		defines "RP_CONFIG_DEBUG"
 		runtime "Debug"
 		symbols "on"
 		
 	filter "configurations:Release"
+		defines "RP_CONFIG_RELEASE"
 		runtime "Release"
 		optimize "on"
-
+		
 	filter "configurations:Distribution"
+		defines "RP_CONFIG_DISTRIBUTION"
 		runtime "Release"
 		optimize "Full"
 		linktimeoptimization "on"
