@@ -16,6 +16,11 @@
 #include <cstdint>
 #include <vector>
 
+namespace Ob::Project
+{
+    class Renderer;
+}
+
 namespace Ob
 {
 
@@ -29,25 +34,21 @@ namespace Ob
         Renderer(Obsidian::Window& window, bool vsync);
         ~Renderer();
 
-        // Static methods
+        // Methods
         // Note: These functions are called by the window
-        static void Begin();
-        static void End();
-
-        // Note: These functions are called by the project/scene
-        static void BeginLayer(Project::VisualLayer& layer);
-        static void EndLayer(Project::VisualLayer& layer);
+        void Begin();
+        void End();
 
         // Other
-        static void Resize(uint32_t width, uint32_t height);
+        void Resize(uint32_t width, uint32_t height);
 
-        // Static getters
-        inline static Obsidian::Window& GetWindow() { return s_Instance->m_Window; } // Note: This is here, because we can't have it in Application because the Project/Scene already requires the window in that initialization
-        inline static Obsidian::Device& GetDevice() { return s_Instance->m_Device; }
-        inline static Obsidian::Swapchain& GetSwapChain() { return s_Instance->m_SwapChain; }
-        inline static Obsidian::CommandListPool& GetGraphicsPool(uint8_t frame) { OBSIDIA_ASSERT((frame < s_Instance->m_GraphicsListPools.size()), "Frame exceeds pool size."); return s_Instance->m_GraphicsListPools[frame]; }
+        // Getters
+        inline Obsidian::Window& GetWindow() { return m_Window; } // Note: This is here, because we can't have it in Application because the Project/Scene already requires the window in that initialization
+        inline Obsidian::Device& GetDevice() { return m_Device; }
+        inline Obsidian::Swapchain& GetSwapChain() { return m_SwapChain; }
+        inline Obsidian::CommandListPool& GetGraphicsPool(uint8_t frame) { OBSIDIA_ASSERT((frame < m_GraphicsListPools.size()), "Frame exceeds pool size."); return m_GraphicsListPools[frame]; }
 
-        inline static uint8_t GetCurrentFrame() { return s_Instance->m_SwapChain.GetCurrentFrame(); }
+        inline uint8_t GetCurrentFrame() const { return m_SwapChain.GetCurrentFrame(); }
 
     private:
         // Private methods
@@ -64,16 +65,10 @@ namespace Ob
 
         // Combines all visual layers
         std::array<Nano::Memory::DeferredConstruct<Obsidian::CommandListPool>, Obsidian::Information::FramesInFlight> m_GraphicsListPools = { };
-        std::array<Nano::Memory::DeferredConstruct<Obsidian::CommandList>, Obsidian::Information::FramesInFlight> m_CompositeLists = { };
-        Obsidian::Renderpass m_CompositePass;
-
-        Obsidian::CommandList const* m_LastVisualLayerList = nullptr;
-
-        // TODO: 2D & 3D renderer
 
         std::queue<Obsidian::DeviceDestroyFn> m_DestroyQueue = {};
 
-        inline static Renderer* s_Instance = nullptr;
+        friend class Project::Renderer;
     };
 
 }

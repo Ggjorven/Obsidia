@@ -13,6 +13,7 @@ namespace Ob::Project
 {
 
     class Scene;
+    class Renderer;
 
     ////////////////////////////////////////////////////////////////////////////////////
     // VisualLayerSpecification
@@ -34,7 +35,7 @@ namespace Ob::Project
     {
     public:
         // Constructor & Destructor
-        VisualLayer(const VisualLayerSpecification& specs);
+        VisualLayer(Renderer& targetRenderer, const VisualLayerSpecification& specs);
         ~VisualLayer();
 
         // Methods
@@ -52,6 +53,7 @@ namespace Ob::Project
         // Private methods
 
     private:
+        Renderer& m_TargetRenderer;
         VisualLayerSpecification m_Specification;
 
         std::array<Nano::Memory::DeferredConstruct<Obsidian::CommandList>, Obsidian::Information::FramesInFlight> m_CommandLists = { };

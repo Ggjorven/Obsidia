@@ -116,8 +116,8 @@ namespace Ob::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // Constructor & Destructor
     ////////////////////////////////////////////////////////////////////////////////////
-    Project::Project(const ProjectSpecification& specs)
-        : m_Specification(specs)
+    Project::Project(Renderer& targetRenderer, const ProjectSpecification& specs)
+        : m_TargetRenderer(targetRenderer), m_Specification(specs)
     {
         Logger::Info("[Project] Initializing project named: \"{0}\"", m_Specification.Name);
 
@@ -151,7 +151,6 @@ namespace Ob::Project
 
     Project::~Project()
     {
-        m_Scenes.Clear();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -164,7 +163,9 @@ namespace Ob::Project
 
     void Project::OnRender()
     {
-        m_Scenes.ActiveScene->OnRender();
+        m_TargetRenderer.Begin();
+        m_Scenes.ActiveScene->OnRender(m_TargetRenderer);
+        m_TargetRenderer.End();
     }
 
     void Project::OnEvent(const Event& e)
@@ -249,18 +250,18 @@ namespace Ob::Project
             [&](auto&& obj) -> std::expected<std::shared_ptr<Scene>, ErrorCode>
             {
                 // Make sure we can load
-                if (obj == nullptr)
+                if (obj == nullptr) [[unlikely]]
                     return std::unexpected(ErrorCode::NoLoadFunction);
 
                 if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, SceneSpecification::Load2DFn>)
                 {
                     Scene2DTable table = obj(sceneSpec.value());
-                    return std::make_shared<Scene2D>(sceneSpec.value(), std::move(table));
+                    return std::make_shared<Scene2D>(m_TargetRenderer, sceneSpec.value(), std::move(table));
                 }
                 else if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, SceneSpecification::Load3DFn>)
                 {
                     Scene3DTable table = obj(sceneSpec.value());
-                    return std::make_shared<Scene3D>(sceneSpec.value(), std::move(table));
+                    return std::make_shared<Scene3D>(m_TargetRenderer, sceneSpec.value(), std::move(table));
                 }
 
             },

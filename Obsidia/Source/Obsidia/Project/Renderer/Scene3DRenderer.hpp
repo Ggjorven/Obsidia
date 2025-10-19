@@ -2,12 +2,12 @@
 
 #include "Obsidia/Core/Core.hpp"
 
-#include "Obsidia/Project/Scene3D.hpp"
-
 #include <cstdint>
 
 namespace Ob::Project
 {
+
+    class Scene3D;
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Scene3DRenderer

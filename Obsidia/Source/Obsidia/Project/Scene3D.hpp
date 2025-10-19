@@ -17,12 +17,12 @@ namespace Ob::Project
     {
     public:
         // Constructor & Destructor
-        Scene3D(const SceneSpecification& specs, Scene3DTable&& table);
+        Scene3D(Renderer& targetRenderer, const SceneSpecification& specs, Scene3DTable&& table);
         ~Scene3D();
 
         // Methods
         void OnUpdate(float deltaTime) override;
-        void OnRender() override;
+        void OnRender(Renderer& renderer) override;
         void OnEvent(const Event& e) override;
 
     private:

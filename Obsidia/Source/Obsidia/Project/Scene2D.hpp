@@ -4,6 +4,7 @@
 
 #include "Obsidia/Project/Scene.hpp"
 #include "Obsidia/Project/Events.hpp"
+#include "Obsidia/Project/Renderer/Renderer.hpp"
 
 #include <cstdint>
 
@@ -17,12 +18,12 @@ namespace Ob::Project
     {
     public:
         // Constructor & Destructor
-        Scene2D(const SceneSpecification& specs, Scene2DTable&& table);
+        Scene2D(Renderer& targetRenderer, const SceneSpecification& specs, Scene2DTable&& table);
         ~Scene2D();
 
         // Methods
         void OnUpdate(float deltaTime) override;
-        void OnRender() override;
+        void OnRender(Renderer& renderer) override;
         void OnEvent(const Event& e) override;
 
     private:

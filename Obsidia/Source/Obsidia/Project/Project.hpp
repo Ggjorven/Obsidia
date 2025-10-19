@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Obsidia/Core/Core.hpp"
+#include "Obsidia/Core/Window.hpp"
 
 #include "Obsidia/Project/Scene.hpp"
 #include "Obsidia/Project/Events.hpp"
+#include "Obsidia/Project/Renderer/Renderer.hpp"
 
 #include <Obsidian/Core/Events.hpp>
 
@@ -80,7 +82,7 @@ namespace Ob::Project
     {
     public:
         // Constructor & Destructor
-        Project(const ProjectSpecification& specs);
+        Project(Renderer& targetRenderer, const ProjectSpecification& specs);
         ~Project();
 
         // Methods
@@ -110,6 +112,7 @@ namespace Ob::Project
         std::expected<void, ErrorCode> UnloadScene(const SceneID& sceneIdentifier);
 
     private:
+        Renderer& m_TargetRenderer;
         ProjectSpecification m_Specification;
 
         SceneCollection m_Scenes = {};

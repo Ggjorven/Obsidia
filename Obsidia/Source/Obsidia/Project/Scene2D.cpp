@@ -12,8 +12,8 @@ namespace Ob::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // Constructor & Destructor
     ////////////////////////////////////////////////////////////////////////////////////
-    Scene2D::Scene2D(const SceneSpecification& specs, Scene2DTable&& table)
-        : Scene(specs, table), m_Table(std::move(table))
+    Scene2D::Scene2D(Renderer& targetRenderer, const SceneSpecification& specs, Scene2DTable&& table)
+        : Scene(targetRenderer, specs, table), m_Table(std::move(table))
     {
     }
 
@@ -28,15 +28,15 @@ namespace Ob::Project
     {
     }
 
-    void Scene2D::OnRender()
+    void Scene2D::OnRender(Renderer& renderer)
     {
         for (auto& visualLayer : m_VisualLayers)
         {
-            Renderer::BeginLayer(visualLayer);
+            m_TargetRenderer.BeginLayer(visualLayer);
 
             // Note: Render objects
 
-            Renderer::EndLayer(visualLayer);
+            m_TargetRenderer.EndLayer(visualLayer);
         }
     }
 

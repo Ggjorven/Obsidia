@@ -2,12 +2,12 @@
 
 #include "Obsidia/Core/Core.hpp"
 
-#include "Obsidia/Project/Scene2D.hpp"
-
 #include <cstdint>
 
 namespace Ob::Project
 {
+
+    class Scene2D;
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Scene2DRenderer

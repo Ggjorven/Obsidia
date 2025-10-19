@@ -10,8 +10,8 @@ namespace Ob::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // Constructor & Destructor
     ////////////////////////////////////////////////////////////////////////////////////
-    Scene3D::Scene3D(const SceneSpecification& specs, Scene3DTable&& table)
-        : Scene(specs, table), m_Table(std::move(table))
+    Scene3D::Scene3D(Renderer& targetRenderer, const SceneSpecification& specs, Scene3DTable&& table)
+        : Scene(targetRenderer, specs, table), m_Table(std::move(table))
     {
     }
 
@@ -26,7 +26,7 @@ namespace Ob::Project
     {
     }
 
-    void Scene3D::OnRender()
+    void Scene3D::OnRender(Renderer& renderer)
     {
     }
 

@@ -12,8 +12,8 @@ namespace Ob::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // Constructor & Destructor
     ////////////////////////////////////////////////////////////////////////////////////
-    Scene::Scene(const SceneSpecification& specs, const SceneTable& table)
-        : m_Specification(specs), m_GlobalTable(table)
+    Scene::Scene(Renderer& renderer, const SceneSpecification& specs, const SceneTable& table)
+        : m_TargetRenderer(renderer), m_Specification(specs), m_GlobalTable(table)
     {
         Logger::Info("[Scene] Initializing scene named: \"{0}\"", m_Specification.Name);
 
@@ -60,7 +60,7 @@ namespace Ob::Project
         {
             m_VisualLayers.reserve(m_GlobalTable.VisualLayers.size());
             for (const auto& layerSpec : m_GlobalTable.VisualLayers)
-                m_VisualLayers.emplace_back(layerSpec);
+                m_VisualLayers.emplace_back(m_TargetRenderer, layerSpec);
         }
     }
 

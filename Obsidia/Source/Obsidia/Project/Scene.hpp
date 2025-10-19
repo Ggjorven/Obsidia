@@ -6,6 +6,7 @@
 #include "Obsidia/ECS/Registry.hpp"
 
 #include "Obsidia/Project/Events.hpp"
+#include "Obsidia/Project/Renderer/Renderer.hpp"
 #include "Obsidia/Project/Renderer/VisualLayer.hpp"
 
 #include <Obsidian/Core/Events.hpp>
@@ -107,12 +108,12 @@ namespace Ob::Project
     {
     public:
         // Constructor & Destructor
-        Scene(const SceneSpecification& specs, const SceneTable& table);
+        Scene(Renderer& renderer, const SceneSpecification& specs, const SceneTable& table);
         ~Scene();
 
         // Methods
         virtual void OnUpdate(float deltaTime) = 0;
-        virtual void OnRender() = 0;
+        virtual void OnRender(Renderer& renderer) = 0;
         virtual void OnEvent(const Event& e) = 0;
 
         // Getters
@@ -123,6 +124,7 @@ namespace Ob::Project
         void CreateVisualLayers();
 
     protected:
+        Renderer& m_TargetRenderer;
         SceneSpecification m_Specification;
         SceneTable m_GlobalTable;
 

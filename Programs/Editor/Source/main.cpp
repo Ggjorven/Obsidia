@@ -1,4 +1,4 @@
-#include <Obsidia/Core/Application.hpp>
+#include <Obsidia/Core/Window.hpp>
 
 using namespace Ob;
 
@@ -6,30 +6,48 @@ int main(const int argc, const char* argv[])
 {
 	(void)argc; (void)argv;
 
-	Application app = Application(ApplicationSpecification()
+	Window w = Window(WindowSpecification()
 		.SetTitle("Obsidia Application - TESTPROJECT")
 		.SetWidthAndHeight(1280, 720)
-
-		.SetProject(Project::ProjectSpecification()
-			.SetName("TESTPROJECT")
-
-			.AddScene(Project::SceneSpecification()
-				.SetName("MainMenu")
-				.SetUUID(10)
-
-				.SetLoadSceneFn([](const Project::SceneSpecification& specs) -> Project::Scene2DTable
-				{
-					Logger::Info("Load scene function being called.");
-
-					Project::Scene2DTable table = {};
-					return table;
-				})
-			)
-			
-			.SetStartScene(10)
-		)
+		
+		.SetEventCallback([](const Obsidian::Event& e)
+		{
+			// TODO: Pass through to project
+		})
 	);
-	app.Run();
+
+	Project::Renderer renderer(w, 1280, 720);
+	Project::Project project(renderer, Project::ProjectSpecification()
+		.SetName("TESTPROJECT")
+		.AddScene(Project::SceneSpecification()
+			.SetName("TESTSCENE")
+			.SetUUID(69420)
+
+			.SetLoadSceneFn([](const Project::SceneSpecification& specs) -> Project::Scene2DTable
+			{
+				Project::Scene2DTable table;
+				return table;
+			})
+		)
+
+		.SetStartScene(69420)
+	);
+
+	float lastTime = w.GetTime();
+	while (w.IsOpen())
+	{
+		// Update
+		float currentTime = w.GetTime();
+		float deltaTime = currentTime - lastTime;
+		project.OnUpdate(deltaTime);
+		lastTime = currentTime;
+
+		// Render
+		project.OnRender();
+
+		w.SwapBuffers();
+		w.PollEvents();
+	}
 
 	return 0;
 }
