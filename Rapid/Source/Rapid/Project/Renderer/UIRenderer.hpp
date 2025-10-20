@@ -13,22 +13,21 @@ namespace Rapid::Project
 {
 
     class Renderer;
-    class Scene3D;
 
     ////////////////////////////////////////////////////////////////////////////////////
-    // Scene3DRenderer
+    // UIRenderer // Note: This UIRenderer refers to the UI made by the game developer, not the engine UI
     ////////////////////////////////////////////////////////////////////////////////////
-    class Scene3DRenderer
+    class UIRenderer
     {
     public:
         // Constructor & Destructor
-        Scene3DRenderer(Renderer& targetRenderer);
-        ~Scene3DRenderer();
+        UIRenderer(Renderer& targetRenderer);
+        ~UIRenderer();
 
         // Methods
-        void Render(const Scene3D& scene);
+        void Render(const Obsidian::CommandList& waitOn);
 
-        void Resize(); // Note: Resizes to Image's width and height, so no need to pass in.
+        void Resize();
 
         // Getters
         inline const Obsidian::CommandList& GetCommandList(uint8_t frame) const { RP_ASSERT((frame < m_CommandLists.size()), "Frame exceeds size."); return m_CommandLists[frame].Get(); }
@@ -36,8 +35,8 @@ namespace Rapid::Project
     private:
         // Private methods
         void Begin();
-        void RenderScene(const Scene3D& scene);
-        void End();
+        void RenderUI();
+        void End(const Obsidian::CommandList& waitOn);
 
     private:
         Renderer& m_TargetRenderer;

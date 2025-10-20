@@ -3,9 +3,10 @@
 #include "Rapid/Core/Core.hpp"
 #include "Rapid/Core/Window.hpp"
 
-#include "Rapid/Project/Scene.hpp"
 #include "Rapid/Project/Events.hpp"
 #include "Rapid/Project/Renderer/Renderer.hpp"
+
+#include "Rapid/Project/Scene/Scene.hpp"
 
 #include <Obsidian/Core/Events.hpp>
 
@@ -82,12 +83,12 @@ namespace Rapid::Project
     {
     public:
         // Constructor & Destructor
-        Project(Renderer& targetRenderer, const ProjectSpecification& specs);
+        Project(const ProjectSpecification& specs);
         ~Project();
 
         // Methods
         void OnUpdate(float deltaTime);
-        void OnRender();
+        void OnRender(Renderer& renderer);
         void OnEvent(const Event& e);
 
         // Getters
@@ -112,7 +113,6 @@ namespace Rapid::Project
         std::expected<void, ErrorCode> UnloadScene(const SceneID& sceneIdentifier);
 
     private:
-        Renderer& m_TargetRenderer;
         ProjectSpecification m_Specification;
 
         SceneCollection m_Scenes = {};

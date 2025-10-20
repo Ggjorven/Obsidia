@@ -10,8 +10,8 @@ namespace Rapid::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // Constructor & Destructor
     ////////////////////////////////////////////////////////////////////////////////////
-    Scene3D::Scene3D(Renderer& targetRenderer, const SceneSpecification& specs, Scene3DTable&& table)
-        : Scene(targetRenderer, specs, table), m_Table(std::move(table))
+    Scene3D::Scene3D(const SceneSpecification& specs, Scene3DTable&& table)
+        : m_Specification(specs), m_Table(std::move(table))
     {
     }
 

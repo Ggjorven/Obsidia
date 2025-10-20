@@ -1,28 +1,16 @@
 #pragma once
 
 #include "Rapid/Core/Core.hpp"
-#include "Rapid/Core/Logger.hpp"
 
 #include "Rapid/ECS/Registry.hpp"
 
-#include "Rapid/Project/Events.hpp"
-#include "Rapid/Project/Renderer/Renderer.hpp"
-#include "Rapid/Project/Renderer/VisualLayer.hpp"
-
-#include <Obsidian/Core/Events.hpp>
-
 #include <cstdint>
 #include <string>
-#include <vector>
-#include <memory>
 #include <variant>
 #include <functional>
-#include <type_traits>
 
 namespace Rapid::Project
 {
-
-    class Project;
 
     ////////////////////////////////////////////////////////////////////////////////////
     // SceneTable // Note: Actual scene data
@@ -30,14 +18,15 @@ namespace Rapid::Project
     struct SceneTable // Note: Scene data that's the same for 2D and 3D
     {
     public:
-        std::vector<VisualLayerSpecification> VisualLayers = {};
-
-        // TODO: Physics Ticks
+        // TODO: Physics Ticks (ex. 60-120)
 
     public:
         // Note: The setters are defined in the specific struct, because it needs to return the actual type.
     };
 
+    ////////////////////////////////////////////////////////////////////////////////////
+    // Scene2DTable
+    ////////////////////////////////////////////////////////////////////////////////////
     struct Scene2DTable : public SceneTable
     {
     public:
@@ -50,11 +39,11 @@ namespace Rapid::Project
     public:
         // Setters
         inline Scene2DTable& SetRegistry(ECS::Registry2D&& registry) { Registry = std::move(registry); }
-
-        inline Scene2DTable& SetVisualLayers(std::vector<VisualLayerSpecification>&& layers) { VisualLayers = std::move(layers); return *this; }
-        inline Scene2DTable& AddVisualLayer(const VisualLayerSpecification& specs) { VisualLayers.emplace_back(specs); return *this; }
     };
 
+    ////////////////////////////////////////////////////////////////////////////////////
+    // Scene3DTable
+    ////////////////////////////////////////////////////////////////////////////////////
     struct Scene3DTable : public SceneTable
     {
     public:
@@ -69,9 +58,6 @@ namespace Rapid::Project
     public:
         // Setters
         inline Scene3DTable& SetRegistry(ECS::Registry3D&& registry) { Registry = std::move(registry); }
-
-        inline Scene3DTable& SetVisualLayers(std::vector<VisualLayerSpecification>&& layers) { VisualLayers = std::move(layers); return *this; }
-        inline Scene3DTable& AddVisualLayer(const VisualLayerSpecification& specs) { VisualLayers.emplace_back(specs); return *this; }
     };
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -99,36 +85,6 @@ namespace Rapid::Project
         // Getters
         inline bool Is2D() const { return std::holds_alternative<Load2DFn>(LoadSceneFn); }
         inline bool Is3D() const { return std::holds_alternative<Load3DFn>(LoadSceneFn); }
-    };
-
-    ////////////////////////////////////////////////////////////////////////////////////
-    // Scene
-    ////////////////////////////////////////////////////////////////////////////////////
-    class Scene // Note: A base scene class with functionality used in all scenes
-    {
-    public:
-        // Constructor & Destructor
-        Scene(Renderer& renderer, const SceneSpecification& specs, const SceneTable& table);
-        ~Scene();
-
-        // Methods
-        virtual void OnUpdate(float deltaTime) = 0;
-        virtual void OnRender(Renderer& renderer) = 0;
-        virtual void OnEvent(const Event& e) = 0;
-
-        // Getters
-        inline const SceneSpecification& GetSpecification() { return m_Specification; }
-
-    private:
-        // Private methods
-        void CreateVisualLayers();
-
-    protected:
-        Renderer& m_TargetRenderer;
-        SceneSpecification m_Specification;
-        SceneTable m_GlobalTable;
-
-        std::vector<VisualLayer> m_VisualLayers;
     };
 
 }

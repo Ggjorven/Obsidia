@@ -3,10 +3,6 @@
 #include "Rapid/Core/Core.hpp"
 #include "Rapid/Core/Logger.hpp"
 
-#include "Rapid/Project/Renderer/VisualLayer.hpp"
-#include "Rapid/Project/Renderer/Scene2DRenderer.hpp"
-#include "Rapid/Project/Renderer/Scene3DRenderer.hpp"
-
 #include <Obsidian/Core/Information.hpp>
 #include <Obsidian/Core/Window.hpp>
 

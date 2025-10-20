@@ -15,48 +15,58 @@ namespace Rapid::Project
     Renderer::Renderer(Window& target, uint32_t projectWidth, uint32_t projectHeight)
         : m_TargetWindow(target), m_Width(projectWidth), m_Height(projectHeight)
     {
-        for (auto& image : m_Images)
-            image.Construct(GetInternalRenderer().GetDevice(), GetInternalRenderer().GetSwapChain().GetImage(0).GetSpecification());
+        // Create target images
+        {
+            Obsidian::ImageSpecification imageSpec = GetInternalRenderer().GetSwapChain().GetImage(0).GetSpecification();
+            imageSpec.SetWidthAndHeight(projectWidth, projectHeight);
+            imageSpec.SetIsShaderResource(true);
+            imageSpec.SetIsRenderTarget(true);
+            imageSpec.SetPermanentState(Obsidian::ResourceState::ShaderResource);
+
+            for (auto& image : m_Images)
+            {
+                image.Construct(GetInternalRenderer().GetDevice(), imageSpec);
+                GetInternalRenderer().GetDevice().StartTracking(image.Get());
+            }
+        }
+
+        m_2DRenderer.Construct(*this);
+        m_3DRenderer.Construct(*this);
+        m_UIRenderer.Construct(*this);
     }
 
     Renderer::~Renderer()
     {
+        for (auto& image : m_Images)
+            GetInternalRenderer().GetDevice().DestroyImage(image.Get());
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Methods
     ////////////////////////////////////////////////////////////////////////////////////
-    void Renderer::Begin()
+    void Renderer::Render(const Scene2D& scene)
     {
-        m_LastVisualLayer = nullptr;
+        m_2DRenderer->Render(scene);
+        m_UIRenderer->Render(m_2DRenderer->GetCommandList(GetCurrentFrame()));
     }
 
-    void Renderer::End()
+    void Renderer::Render(const Scene3D& scene)
     {
+        m_3DRenderer->Render(scene);
+        m_UIRenderer->Render(m_3DRenderer->GetCommandList(GetCurrentFrame()));
     }
 
-    void Renderer::BeginLayer(VisualLayer& layer)
-    {
-        layer.Begin();
-    }
-
-    void Renderer::EndLayer(VisualLayer& layer)
-    {
-        if (m_LastVisualLayer)
-        {
-            std::vector<const Obsidian::CommandList*> waitOn{ m_LastVisualLayer };
-            layer.End(waitOn);
-        }
-        else
-            layer.End({});
-
-        m_LastVisualLayer = &layer.GetCommandList(GetCurrentFrame());
-    }
-
+    ////////////////////////////////////////////////////////////////////////////////////
+    // Methods
+    ////////////////////////////////////////////////////////////////////////////////////
     void Renderer::Resize(uint32_t width, uint32_t height)
     {
         for (auto& image : m_Images)
             image->Resize(width, height);
+
+        m_2DRenderer->Resize();
+        m_3DRenderer->Resize();
+        m_UIRenderer->Resize();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -76,5 +86,9 @@ namespace Rapid::Project
     {
         return m_TargetWindow.m_Renderer;
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // Private methods
+    ////////////////////////////////////////////////////////////////////////////////////
 
 }

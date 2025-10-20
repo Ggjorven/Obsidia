@@ -4,8 +4,8 @@
 #include "Rapid/Core/Core.hpp"
 #include "Rapid/Core/Logger.hpp"
 
-#include "Rapid/Project/Scene2D.hpp"
-#include "Rapid/Project/Scene3D.hpp"
+#include "Rapid/Project/Scene/Scene2D.hpp"
+#include "Rapid/Project/Scene/Scene3D.hpp"
 
 #include <ranges>
 
@@ -116,8 +116,8 @@ namespace Rapid::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // Constructor & Destructor
     ////////////////////////////////////////////////////////////////////////////////////
-    Project::Project(Renderer& targetRenderer, const ProjectSpecification& specs)
-        : m_TargetRenderer(targetRenderer), m_Specification(specs)
+    Project::Project(const ProjectSpecification& specs)
+        : m_Specification(specs)
     {
         Logger::Info("[Project] Initializing project named: \"{0}\"", m_Specification.Name);
 
@@ -158,18 +158,24 @@ namespace Rapid::Project
     ////////////////////////////////////////////////////////////////////////////////////
     void Project::OnUpdate(float deltaTime)
     {
+        RP_ASSERT(m_Scenes.ActiveScene, "ActiveScene must not be null.");
         m_Scenes.ActiveScene->OnUpdate(deltaTime);
     }
 
-    void Project::OnRender()
+    void Project::OnRender(Renderer& renderer)
     {
-        m_TargetRenderer.Begin();
-        m_Scenes.ActiveScene->OnRender(m_TargetRenderer);
-        m_TargetRenderer.End();
+        RP_ASSERT(m_Scenes.ActiveScene, "ActiveScene must not be null.");
+
+        // TODO: Make better
+        if (m_Scenes.ActiveScene->Is2D())
+            renderer.Render(m_Scenes.ActiveScene->Get2D());
+        else if (m_Scenes.ActiveScene->Is3D())
+            renderer.Render(m_Scenes.ActiveScene->Get3D());
     }
 
     void Project::OnEvent(const Event& e)
     {
+        RP_ASSERT(m_Scenes.ActiveScene, "ActiveScene must not be null.");
         m_Scenes.ActiveScene->OnEvent(e);
     }
 
@@ -253,16 +259,19 @@ namespace Rapid::Project
                 if (obj == nullptr) [[unlikely]]
                     return std::unexpected(ErrorCode::NoLoadFunction);
 
-                if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, SceneSpecification::Load2DFn>)
-                {
-                    Scene2DTable table = obj(sceneSpec.value());
-                    return std::make_shared<Scene2D>(m_TargetRenderer, sceneSpec.value(), std::move(table));
-                }
-                else if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, SceneSpecification::Load3DFn>)
-                {
-                    Scene3DTable table = obj(sceneSpec.value());
-                    return std::make_shared<Scene3D>(m_TargetRenderer, sceneSpec.value(), std::move(table));
-                }
+                //if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, SceneSpecification::Load2DFn>)
+                //{
+                //    Scene2DTable table = obj(sceneSpec.value());
+                //    return std::make_shared<Scene>(sceneSpec.value(), std::move(table));
+                //}
+                //else if constexpr (std::is_same_v<std::decay_t<decltype(obj)>, SceneSpecification::Load3DFn>)
+                //{
+                //    Scene3DTable table = obj(sceneSpec.value());
+                //    return std::make_shared<Scene>(sceneSpec.value(), std::move(table));
+                //}
+
+                auto table = obj(sceneSpec.value());
+                return std::make_shared<Scene>(sceneSpec.value(), std::move(table));
 
             },
             sceneSpec.value().LoadSceneFn

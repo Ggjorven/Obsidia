@@ -3,11 +3,11 @@
 #include "Rapid/Core/Core.hpp"
 #include "Rapid/Core/Logger.hpp"
 
-#include "Rapid/Project/Renderer/VisualLayer.hpp"
+#include "Rapid/Renderer/Renderer.hpp"
+
 #include "Rapid/Project/Renderer/Scene2DRenderer.hpp"
 #include "Rapid/Project/Renderer/Scene3DRenderer.hpp"
-
-#include "Rapid/Renderer/Renderer.hpp"
+#include "Rapid/Project/Renderer/UIRenderer.hpp"
 
 #include <Obsidian/Core/Information.hpp>
 #include <Obsidian/Renderer/Image.hpp>
@@ -35,11 +35,8 @@ namespace Rapid::Project
         ~Renderer();
 
         // Methods
-        void Begin();
-        void End();
-
-        void BeginLayer(VisualLayer& layer);
-        void EndLayer(VisualLayer& layer);
+        void Render(const Scene2D& scene);
+        void Render(const Scene3D& scene);
 
         void Resize(uint32_t width, uint32_t height);
 
@@ -55,17 +52,13 @@ namespace Rapid::Project
         const Rapid::Renderer& GetInternalRenderer() const;
 
     private:
-        // Private methods
-
-    private:
         Window& m_TargetWindow;
         uint32_t m_Width, m_Height;
         std::array<Nano::Memory::DeferredConstruct<Obsidian::Image>, Obsidian::Information::FramesInFlight> m_Images = { };
 
-        Obsidian::CommandList const* m_LastVisualLayer = nullptr;
-
-        Scene2DRenderer m_2DRenderer;
-        Scene3DRenderer m_3DRenderer;
+        Nano::Memory::DeferredConstruct<Scene2DRenderer> m_2DRenderer = {};
+        Nano::Memory::DeferredConstruct<Scene3DRenderer> m_3DRenderer = {};
+        Nano::Memory::DeferredConstruct<UIRenderer> m_UIRenderer = {};
     };
 
 }

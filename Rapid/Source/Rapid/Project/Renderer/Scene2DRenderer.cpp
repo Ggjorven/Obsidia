@@ -1,14 +1,10 @@
 #include "rppch.h"
-#include "VisualLayer.hpp"
+#include "Scene2DRenderer.hpp"
 
 #include "Rapid/Core/Core.hpp"
 #include "Rapid/Core/Logger.hpp"
 
-#include "Rapid/Project/Renderer/Renderer.hpp"
-
-#include "Rapid/Renderer/Renderer.hpp"
-
-#include <ranges>
+#include "Rapid/Core/Window.hpp"
 
 namespace Rapid::Project
 {
@@ -16,25 +12,23 @@ namespace Rapid::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // Constructor & Destructor
     ////////////////////////////////////////////////////////////////////////////////////
-    VisualLayer::VisualLayer(Renderer& targetRenderer, const VisualLayerSpecification& specs)
-        : m_TargetRenderer(targetRenderer), m_Specification(specs)
-
-        , m_Renderpass(targetRenderer.GetInternalRenderer().GetDevice(), Obsidian::RenderpassSpecification()
+    Scene2DRenderer::Scene2DRenderer(Renderer& targetRenderer)
+        : m_TargetRenderer(targetRenderer), m_Renderpass(m_TargetRenderer.GetInternalRenderer().GetDevice(), Obsidian::RenderpassSpecification()
             .SetBindpoint(Obsidian::PipelineBindpoint::Graphics)
 
             .SetColourImageSpecification(m_TargetRenderer.GetImage(0).GetSpecification())
-            .SetColourLoadOperation(((m_Specification.Level == 1) ? Obsidian::LoadOperation::Clear : Obsidian::LoadOperation::Load))
-            .SetColourStartState(Obsidian::ResourceState::Present)
+            .SetColourLoadOperation(Obsidian::LoadOperation::Clear)
+            .SetColourStartState(Obsidian::ResourceState::Unknown) // TODO: Change to ShaderResource
             .SetColourRenderingState(Obsidian::ResourceState::RenderTarget)
             .SetColourEndState(Obsidian::ResourceState::RenderTarget)
 
-            .SetDebugName(std::format("VisualLayer-{0} Pass", m_Specification.Level))
+            .SetDebugName("Scene2DPass")
         )
     {
         // Create CommandLists for each frame
         for (uint8_t i = 0; i < m_CommandLists.size(); i++)
             m_CommandLists[i].Construct(m_TargetRenderer.GetInternalRenderer().GetGraphicsPool(i), Obsidian::CommandListSpecification()
-                .SetDebugName(std::format("CommandList({0}) for VisualLayer-{1}", i, m_Specification.Level))
+                .SetDebugName(std::format("CommandList({0}) for Scene2DPass", i))
             );
 
         // Create framebuffers for renderpass
@@ -52,18 +46,33 @@ namespace Rapid::Project
             );
     }
 
-    VisualLayer::~VisualLayer()
+    Scene2DRenderer::~Scene2DRenderer()
     {
-        for (uint8_t i = 0; i < m_CommandLists.size(); i++)
-            m_TargetRenderer.GetInternalRenderer().GetGraphicsPool(i).FreeList(m_CommandLists[i].Get());
-
         m_TargetRenderer.GetInternalRenderer().GetDevice().DestroyRenderpass(m_Renderpass);
+
+        for (uint8_t i = 0; i < Obsidian::Information::FramesInFlight; i++)
+            m_TargetRenderer.GetInternalRenderer().GetGraphicsPool(i).FreeList(m_CommandLists[i].Get());
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Methods
     ////////////////////////////////////////////////////////////////////////////////////
-    void VisualLayer::Begin()
+    void Scene2DRenderer::Render(const Scene2D& scene)
+    {
+        Begin();
+        RenderScene(scene);
+        End();
+    }
+
+    void Scene2DRenderer::Resize()
+    {
+        m_Renderpass.ResizeFramebuffers();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // Private methods
+    ////////////////////////////////////////////////////////////////////////////////////
+    void Scene2DRenderer::Begin()
     {
         auto& list = m_CommandLists[m_TargetRenderer.GetCurrentFrame()].Get();
         list.Open();
@@ -78,7 +87,11 @@ namespace Rapid::Project
         );
     }
 
-    void VisualLayer::End(std::span<const Obsidian::CommandList*> waitOn)
+    void Scene2DRenderer::RenderScene(const Scene2D& scene)
+    {
+    }
+
+    void Scene2DRenderer::End()
     {
         auto& list = m_CommandLists[m_TargetRenderer.GetCurrentFrame()].Get();
 
@@ -88,15 +101,9 @@ namespace Rapid::Project
 
         list.Close();
         list.Submit(Obsidian::CommandListSubmitArgs()
-            .SetWaitOnLists(waitOn)
-            .SetWaitForSwapchainImage((m_Specification.Level == 1)) // Note: Only VisualLayer 1 waits on the image
+            .SetWaitForSwapchainImage(false)
             .SetOnFinishMakeSwapchainPresentable(false)
         );
-    }
-
-    void VisualLayer::Resize()
-    {
-        m_Renderpass.ResizeFramebuffers();
     }
 
 }
