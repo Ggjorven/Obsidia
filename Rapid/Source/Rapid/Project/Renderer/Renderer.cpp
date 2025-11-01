@@ -123,30 +123,31 @@ namespace Rapid::Project
     ////////////////////////////////////////////////////////////////////////////////////
     uint32_t Renderer::GetWidth() const
     {
-        if (m_Images.has_value())
-        {
-            return m_Images.value()[0]->GetSpecification().Width;
-        }
-        else
-        {
-            return m_TargetWindow.m_Renderer.GetSwapchain().GetImage(0).GetSpecification().Width;
-        }
+        return GetImage(0).GetSpecification().Width;
     }
 
     uint32_t Renderer::GetHeight() const
     {
-        if (m_Images.has_value())
-        {
-            return m_Images.value()[0]->GetSpecification().Height;
-        }
-        else
-        {
-            return m_TargetWindow.m_Renderer.GetSwapchain().GetImage(0).GetSpecification().Height;
-        }
+        return GetImage(0).GetSpecification().Height;
     }
 
     Obsidian::Image& Renderer::GetImage(uint8_t frame) 
     { 
+        if (m_Images.has_value())
+        {
+            RP_ASSERT((frame < m_Images.value().size()), "Frame exceeds image count.");
+            return m_Images.value()[frame].Get();
+        }
+        else
+        {
+            // Note: Return swapchain image
+            RP_ASSERT((frame < Obsidian::Information::FramesInFlight), "Frame exceeds image count.");
+            return m_TargetWindow.m_Renderer.GetSwapchain().GetImage(frame);
+        }
+    }
+
+    const Obsidian::Image& Renderer::GetImage(uint8_t frame) const
+    {
         if (m_Images.has_value())
         {
             RP_ASSERT((frame < m_Images.value().size()), "Frame exceeds image count.");
@@ -174,9 +175,5 @@ namespace Rapid::Project
     {
         return m_TargetWindow.m_Renderer;
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////
-    // Private methods
-    ////////////////////////////////////////////////////////////////////////////////////
 
 }

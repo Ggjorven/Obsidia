@@ -40,7 +40,7 @@ namespace Rapid::Project
 		Renderer(Window& target, uint32_t projectWidth, uint32_t projectHeight); // Note: Renders to custom image // TODO: FIX
         ~Renderer();
 
-        // Methods // Note: Returns the acquired frame
+        // Methods // Note: Returns the acquired frame // Note 2: Is useful when rendering to a custom sized image and want to retrieve it
         uint8_t Render(const Project& project);
         uint8_t Render(const Scene2D& scene);
         uint8_t Render(const Scene3D& scene);
@@ -52,6 +52,7 @@ namespace Rapid::Project
         uint32_t GetHeight() const;
         
         Obsidian::Image& GetImage(uint8_t frame);
+        const Obsidian::Image& GetImage(uint8_t frame) const;
         uint8_t GetCurrentFrame() const;
 
         inline Window& GetTargetWindow() { return m_TargetWindow; }
