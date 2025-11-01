@@ -8,27 +8,32 @@
 #include <Obsidian/Renderer/CommandList.hpp>
 
 #include <cstdint>
+#include <span>
+
+namespace Rapid
+{
+    class Renderer;
+}
 
 namespace Rapid::Project
 {
 
-    class Renderer;
     class Scene3D;
 
     ////////////////////////////////////////////////////////////////////////////////////
-    // Scene3DRenderer
+    // Scene2DRenderer
     ////////////////////////////////////////////////////////////////////////////////////
     class Scene3DRenderer
     {
     public:
         // Constructor & Destructor
-        Scene3DRenderer(Renderer& targetRenderer);
+        Scene3DRenderer(Rapid::Renderer& internalRenderer, std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight> images);
         ~Scene3DRenderer();
 
         // Methods
-        void Render(const Scene3D& scene);
+        void Render(const Scene3D& scene, bool waitForSwapchain, bool onFinishMakeSwapchainPresentable);
 
-        void Resize(); // Note: Resizes to Image's width and height, so no need to pass in.
+        void Resize(uint32_t width, uint32_t height);
 
         // Getters
         inline const Obsidian::CommandList& GetCommandList(uint8_t frame) const { RP_ASSERT((frame < m_CommandLists.size()), "Frame exceeds size."); return m_CommandLists[frame].Get(); }
@@ -37,10 +42,11 @@ namespace Rapid::Project
         // Private methods
         void Begin();
         void RenderScene(const Scene3D& scene);
-        void End();
+        void End(bool waitForSwapchain, bool onFinishMakeSwapchainPresentable);
 
     private:
-        Renderer& m_TargetRenderer;
+        Rapid::Renderer& m_InternalRenderer;
+        uint32_t m_Width, m_Height;
 
         std::array<Nano::Memory::DeferredConstruct<Obsidian::CommandList>, Obsidian::Information::FramesInFlight> m_CommandLists = { };
         Obsidian::Renderpass m_Renderpass;

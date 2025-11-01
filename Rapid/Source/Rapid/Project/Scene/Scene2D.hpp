@@ -24,7 +24,7 @@ namespace Rapid::Project
 
         // Methods
         void OnUpdate(float deltaTime);
-        void OnRender(Renderer& renderer);
+        void OnRender(Scene2DRenderer& renderer) const;
         void OnEvent(const Event& e);
 
         inline const SceneSpecification& GetSpecification() const { return m_Specification; }

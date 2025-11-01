@@ -15,6 +15,7 @@
 
 #include <cstdint>
 #include <array>
+#include <optional>
 
 namespace Rapid
 {
@@ -24,6 +25,10 @@ namespace Rapid
 namespace Rapid::Project
 {
 
+    class Project;
+    class Scene2D;
+    class Scene3D;
+
     ////////////////////////////////////////////////////////////////////////////////////
     // Renderer
     ////////////////////////////////////////////////////////////////////////////////////
@@ -31,20 +36,22 @@ namespace Rapid::Project
     {
     public:
         // Constructor & Destructor
-        Renderer(Window& target, uint32_t projectWidth, uint32_t projectHeight);
+        Renderer(Window& target); 
+		Renderer(Window& target, uint32_t projectWidth, uint32_t projectHeight); // Note: Renders to custom image // TODO: FIX
         ~Renderer();
 
-        // Methods
-        void Render(const Scene2D& scene);
-        void Render(const Scene3D& scene);
+        // Methods // Note: Returns the acquired frame
+        uint8_t Render(const Project& project);
+        uint8_t Render(const Scene2D& scene);
+        uint8_t Render(const Scene3D& scene);
 
         void Resize(uint32_t width, uint32_t height);
 
         // Getters
-        inline uint32_t GetWidth() const { return m_Width; }
-        inline uint32_t GetHeight() const { return m_Height; }
-        inline Obsidian::Image& GetImage(uint8_t frame) { RP_ASSERT((frame < m_Images.size()), "Frame exceeds image count."); return m_Images[frame].Get(); }
+        uint32_t GetWidth() const;
+        uint32_t GetHeight() const;
         
+        Obsidian::Image& GetImage(uint8_t frame);
         uint8_t GetCurrentFrame() const;
 
         inline Window& GetTargetWindow() { return m_TargetWindow; }
@@ -53,8 +60,9 @@ namespace Rapid::Project
 
     private:
         Window& m_TargetWindow;
-        uint32_t m_Width, m_Height;
-        std::array<Nano::Memory::DeferredConstruct<Obsidian::Image>, Obsidian::Information::FramesInFlight> m_Images = { };
+
+        // Note: This is only set when the constructor with width and height are used.
+        std::optional<std::array<Nano::Memory::DeferredConstruct<Obsidian::Image, true>, Obsidian::Information::FramesInFlight>> m_Images = { };
 
         Nano::Memory::DeferredConstruct<Scene2DRenderer> m_2DRenderer = {};
         Nano::Memory::DeferredConstruct<Scene3DRenderer> m_3DRenderer = {};

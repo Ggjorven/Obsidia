@@ -4,7 +4,9 @@
 #include "Rapid/Core/Core.hpp"
 #include "Rapid/Core/Logger.hpp"
 
-#include "Rapid/Core/Window.hpp"
+#include "Rapid/Renderer/Renderer.hpp"
+
+#include "Rapid/Project/Scene/Scene2D.hpp"
 
 namespace Rapid::Project
 {
@@ -12,22 +14,23 @@ namespace Rapid::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // Constructor & Destructor
     ////////////////////////////////////////////////////////////////////////////////////
-    Scene2DRenderer::Scene2DRenderer(Renderer& targetRenderer)
-        : m_TargetRenderer(targetRenderer), m_Renderpass(m_TargetRenderer.GetInternalRenderer().GetDevice(), Obsidian::RenderpassSpecification()
+    Scene2DRenderer::Scene2DRenderer(Rapid::Renderer& internalRenderer, std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight> images)
+        : m_InternalRenderer(internalRenderer), m_Renderpass(internalRenderer.GetDevice(), Obsidian::RenderpassSpecification()
             .SetBindpoint(Obsidian::PipelineBindpoint::Graphics)
 
-            .SetColourImageSpecification(m_TargetRenderer.GetImage(0).GetSpecification())
+            .SetColourImageSpecification(images[0]->GetSpecification())
             .SetColourLoadOperation(Obsidian::LoadOperation::Clear)
-            .SetColourStartState(Obsidian::ResourceState::Unknown) // TODO: Change to ShaderResource
+            .SetColourStoreOperation(Obsidian::StoreOperation::Store)
+            .SetColourStartState(Obsidian::ResourceState::Present) // TODO: Change to something
             .SetColourRenderingState(Obsidian::ResourceState::RenderTarget)
             .SetColourEndState(Obsidian::ResourceState::RenderTarget)
 
             .SetDebugName("Scene2DPass")
-        )
+        ), m_Width(images[0]->GetSpecification().Width), m_Height(images[0]->GetSpecification().Height)
     {
         // Create CommandLists for each frame
         for (uint8_t i = 0; i < m_CommandLists.size(); i++)
-            m_CommandLists[i].Construct(m_TargetRenderer.GetInternalRenderer().GetGraphicsPool(i), Obsidian::CommandListSpecification()
+            m_CommandLists[i].Construct(internalRenderer.GetGraphicsPool(i), Obsidian::CommandListSpecification()
                 .SetDebugName(std::format("CommandList({0}) for Scene2DPass", i))
             );
 
@@ -35,38 +38,35 @@ namespace Rapid::Project
         for (uint8_t i = 0; i < Obsidian::Information::FramesInFlight; i++)
             m_Renderpass.CreateFramebuffer(Obsidian::FramebufferSpecification()
                 .SetColourAttachment(Obsidian::FramebufferAttachment()
-                    .SetImage(m_TargetRenderer.GetImage(i))
-                    .SetSubresources(Obsidian::ImageSubresourceSpecification()
-                        .SetBaseArraySlice(0)
-                        .SetNumArraySlices(1)
-                        .SetBaseMipLevel(0)
-                        .SetNumMipLevels(1)
-                    )
+                    .SetImage(*images[i])
                 )
             );
     }
 
     Scene2DRenderer::~Scene2DRenderer()
     {
-        m_TargetRenderer.GetInternalRenderer().GetDevice().DestroyRenderpass(m_Renderpass);
+        m_InternalRenderer.GetDevice().DestroyRenderpass(m_Renderpass);
 
-        for (uint8_t i = 0; i < Obsidian::Information::FramesInFlight; i++)
-            m_TargetRenderer.GetInternalRenderer().GetGraphicsPool(i).FreeList(m_CommandLists[i].Get());
+        for (uint8_t i = 0; i < m_CommandLists.size(); i++)
+            m_InternalRenderer.GetGraphicsPool(i).FreeList(m_CommandLists[i].Get());
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Methods
     ////////////////////////////////////////////////////////////////////////////////////
-    void Scene2DRenderer::Render(const Scene2D& scene)
+    void Scene2DRenderer::Render(const Scene2D& scene, bool waitForSwapchain, bool onFinishMakeSwapchainPresentable)
     {
         Begin();
         RenderScene(scene);
-        End();
+        End(waitForSwapchain, onFinishMakeSwapchainPresentable);
     }
 
-    void Scene2DRenderer::Resize()
+    void Scene2DRenderer::Resize(uint32_t width, uint32_t height)
     {
         m_Renderpass.ResizeFramebuffers();
+
+        m_Width = width;
+        m_Height = height;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -74,14 +74,14 @@ namespace Rapid::Project
     ////////////////////////////////////////////////////////////////////////////////////
     void Scene2DRenderer::Begin()
     {
-        auto& list = m_CommandLists[m_TargetRenderer.GetCurrentFrame()].Get();
+        auto& list = m_CommandLists[m_InternalRenderer.GetCurrentFrame()].Get();
         list.Open();
 
         list.StartRenderpass(Obsidian::RenderpassStartArgs()
             .SetRenderpass(m_Renderpass)
 
-            .SetViewport(Obsidian::Viewport(static_cast<float>(m_TargetRenderer.GetWidth()), static_cast<float>(m_TargetRenderer.GetHeight())))
-            .SetScissor(Obsidian::ScissorRect(Obsidian::Viewport(static_cast<float>(m_TargetRenderer.GetWidth()), static_cast<float>(m_TargetRenderer.GetHeight()))))
+            .SetViewport(Obsidian::Viewport(static_cast<float>(m_Width), static_cast<float>(m_Height)))
+            .SetScissor(Obsidian::ScissorRect(Obsidian::Viewport(static_cast<float>(m_Width), static_cast<float>(m_Height))))
 
             .SetColourClear({ 0.0f, 0.0f, 0.0f, 1.0f })
         );
@@ -89,11 +89,12 @@ namespace Rapid::Project
 
     void Scene2DRenderer::RenderScene(const Scene2D& scene)
     {
+        scene.OnRender(*this);
     }
 
-    void Scene2DRenderer::End()
+    void Scene2DRenderer::End(bool waitForSwapchain, bool onFinishMakeSwapchainPresentable)
     {
-        auto& list = m_CommandLists[m_TargetRenderer.GetCurrentFrame()].Get();
+        auto& list = m_CommandLists[m_InternalRenderer.GetCurrentFrame()].Get();
 
         list.EndRenderpass(Obsidian::RenderpassEndArgs()
             .SetRenderpass(m_Renderpass)
@@ -101,8 +102,8 @@ namespace Rapid::Project
 
         list.Close();
         list.Submit(Obsidian::CommandListSubmitArgs()
-            .SetWaitForSwapchainImage(false)
-            .SetOnFinishMakeSwapchainPresentable(false)
+            .SetWaitForSwapchainImage(waitForSwapchain)
+            .SetOnFinishMakeSwapchainPresentable(onFinishMakeSwapchainPresentable)
         );
     }
 

@@ -68,6 +68,10 @@ namespace Rapid
         inline Obsidian::Window& GetWindow() { return m_Window; }
 
         inline bool IsOpen() const { return m_Window.IsOpen(); }
+
+        inline uint32_t GetWidth() const { return m_Window.GetSize().x; }
+        inline uint32_t GetHeight() const { return m_Window.GetSize().y; }
+
         inline float GetTime() const { return static_cast<float>(m_Window.GetWindowTime()); }
 
     private:

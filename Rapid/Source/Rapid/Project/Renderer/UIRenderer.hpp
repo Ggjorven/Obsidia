@@ -9,10 +9,13 @@
 
 #include <cstdint>
 
+namespace Rapid
+{
+    class Renderer;
+}
+
 namespace Rapid::Project
 {
-
-    class Renderer;
 
     ////////////////////////////////////////////////////////////////////////////////////
     // UIRenderer // Note: This UIRenderer refers to the UI made by the game developer, not the engine UI
@@ -21,13 +24,13 @@ namespace Rapid::Project
     {
     public:
         // Constructor & Destructor
-        UIRenderer(Renderer& targetRenderer);
+        UIRenderer(Rapid::Renderer& internalRenderer, std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight> images);
         ~UIRenderer();
 
         // Methods
-        void Render(const Obsidian::CommandList& waitOn);
+        void Render(const Obsidian::CommandList& waitOn, bool waitForSwapchain, bool onFinishMakeSwapchainPresentable);
 
-        void Resize();
+        void Resize(uint32_t width, uint32_t height);
 
         // Getters
         inline const Obsidian::CommandList& GetCommandList(uint8_t frame) const { RP_ASSERT((frame < m_CommandLists.size()), "Frame exceeds size."); return m_CommandLists[frame].Get(); }
@@ -36,10 +39,11 @@ namespace Rapid::Project
         // Private methods
         void Begin();
         void RenderUI();
-        void End(const Obsidian::CommandList& waitOn);
+        void End(const Obsidian::CommandList& waitOn, bool waitForSwapchain, bool onFinishMakeSwapchainPresentable);
 
     private:
-        Renderer& m_TargetRenderer;
+        Rapid::Renderer& m_InternalRenderer;
+        uint32_t m_Width, m_Height;
 
         std::array<Nano::Memory::DeferredConstruct<Obsidian::CommandList>, Obsidian::Information::FramesInFlight> m_CommandLists = { };
         Obsidian::Renderpass m_Renderpass;

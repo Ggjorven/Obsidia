@@ -162,17 +162,6 @@ namespace Rapid::Project
         m_Scenes.ActiveScene->OnUpdate(deltaTime);
     }
 
-    void Project::OnRender(Renderer& renderer)
-    {
-        RP_ASSERT(m_Scenes.ActiveScene, "ActiveScene must not be null.");
-
-        // TODO: Make better
-        if (m_Scenes.ActiveScene->Is2D())
-            renderer.Render(m_Scenes.ActiveScene->Get2D());
-        else if (m_Scenes.ActiveScene->Is3D())
-            renderer.Render(m_Scenes.ActiveScene->Get3D());
-    }
-
     void Project::OnEvent(const Event& e)
     {
         RP_ASSERT(m_Scenes.ActiveScene, "ActiveScene must not be null.");

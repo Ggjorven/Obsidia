@@ -28,7 +28,7 @@ namespace Rapid::Project
     {
     }
 
-    void Scene2D::OnRender(Renderer& renderer)
+    void Scene2D::OnRender(Scene2DRenderer& renderer) const
     {
         
     }

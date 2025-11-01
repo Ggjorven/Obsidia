@@ -35,13 +35,13 @@ namespace Rapid
     void Window::SwapBuffers()
     {
         m_Window.SwapBuffers();
-        m_Renderer.End();
+        //m_Renderer.End();
     }
 
     void Window::PollEvents()
     {
         m_Window.PollEvents();
-        m_Renderer.Begin();
+        //m_Renderer.Begin();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////

@@ -40,7 +40,6 @@ namespace Rapid::Project
 
         // Methods
         inline void OnUpdate(float deltaTime) { std::visit([&](auto&& obj) -> void { obj.OnUpdate(deltaTime); }, m_Scene); }
-        inline void OnRender(Renderer& renderer) { std::visit([&](auto&& obj) -> void { obj.OnRender(renderer); }, m_Scene); }
         inline void OnEvent(const Event& e) { std::visit([&](auto&& obj) -> void { obj.OnEvent(e); }, m_Scene); }
 
         // Getters

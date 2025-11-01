@@ -4,7 +4,6 @@
 #include "Rapid/Core/Window.hpp"
 
 #include "Rapid/Project/Events.hpp"
-#include "Rapid/Project/Renderer/Renderer.hpp"
 
 #include "Rapid/Project/Scene/Scene.hpp"
 
@@ -28,7 +27,7 @@ namespace Rapid::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // SceneCollection
     ////////////////////////////////////////////////////////////////////////////////////
-    struct SceneCollection
+    struct SceneCollection // TODO: Put on stack/vector instead of shared_ptr
     {
     public:
         std::unordered_map<uint64_t, SceneSpecification> SceneSpecByUUID = {};
@@ -88,11 +87,11 @@ namespace Rapid::Project
 
         // Methods
         void OnUpdate(float deltaTime);
-        void OnRender(Renderer& renderer);
         void OnEvent(const Event& e);
 
         // Getters
-        inline const ProjectSpecification& GetSpecification() { return m_Specification; }
+        inline const ProjectSpecification& GetSpecification() const { return m_Specification; }
+        inline std::shared_ptr<Scene> GetActiveScene() const { return m_Scenes.ActiveScene; }
 
     private:
         // Private methods

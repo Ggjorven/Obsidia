@@ -41,10 +41,10 @@ namespace Rapid
         // Getters
         inline Obsidian::Window& GetWindow() { return m_Window; } // Note: This is here, because we can't have it in Application because the Project/Scene already requires the window in that initialization
         inline Obsidian::Device& GetDevice() { return m_Device; }
-        inline Obsidian::Swapchain& GetSwapChain() { return m_SwapChain; }
+        inline Obsidian::Swapchain& GetSwapchain() { return m_Swapchain; }
         inline Obsidian::CommandListPool& GetGraphicsPool(uint8_t frame) { RP_ASSERT((frame < m_GraphicsListPools.size()), "Frame exceeds pool size."); return m_GraphicsListPools[frame]; }
 
-        inline uint8_t GetCurrentFrame() const { return m_SwapChain.GetCurrentFrame(); }
+        inline uint8_t GetCurrentFrame() const { return m_Swapchain.GetCurrentFrame(); }
 
     private:
         // Private methods
@@ -57,9 +57,8 @@ namespace Rapid
     private:
         Obsidian::Window& m_Window;
         Obsidian::Device m_Device;
-        Obsidian::Swapchain m_SwapChain;
+        Obsidian::Swapchain m_Swapchain;
 
-        // Combines all visual layers
         std::array<Nano::Memory::DeferredConstruct<Obsidian::CommandListPool>, Obsidian::Information::FramesInFlight> m_GraphicsListPools = { };
 
         std::queue<Obsidian::DeviceDestroyFn> m_DestroyQueue = {};

@@ -19,7 +19,7 @@ namespace Rapid
             .SetDestroyCallback([this](Obsidian::DeviceDestroyFn fn) { DestroyCallback(fn); })
             .SetMessageCallback([this](Obsidian::DeviceMessageType type, const std::string& message) { MessageCallback(type, message); })
         )
-        , m_SwapChain(m_Device, Obsidian::SwapchainSpecification()
+        , m_Swapchain(m_Device, Obsidian::SwapchainSpecification()
             .SetWindow(m_Window)
             .SetFormat(Obsidian::Format::BGRA8Unorm)
             .SetColourSpace(Obsidian::ColourSpace::SRGB)
@@ -30,7 +30,7 @@ namespace Rapid
         // Create CommandListPools & ComposeLists for each frame
         for (uint8_t i = 0; i < m_GraphicsListPools.size(); i++)
         {
-            m_GraphicsListPools[i].Construct(m_SwapChain, Obsidian::CommandListPoolSpecification()
+            m_GraphicsListPools[i].Construct(m_Swapchain, Obsidian::CommandListPoolSpecification()
                 .SetQueue(Obsidian::CommandQueue::Graphics)
                 .SetDebugName("CommandPool for Graphics CommandLists")
             );
@@ -42,9 +42,9 @@ namespace Rapid
         m_Device.Wait();
 
         for (uint8_t i = 0; i < m_GraphicsListPools.size(); i++)
-            m_SwapChain.FreePool(m_GraphicsListPools[i]);
+            m_Swapchain.FreePool(m_GraphicsListPools[i]);
 
-        m_Device.DestroySwapchain(m_SwapChain);
+        m_Device.DestroySwapchain(m_Swapchain);
 
         DestroyQueue();
     }
@@ -54,14 +54,15 @@ namespace Rapid
     ////////////////////////////////////////////////////////////////////////////////////
     void Renderer::Begin()
     {
-        m_SwapChain.AcquireNextImage();
+        DestroyQueue();
+
+        m_Swapchain.AcquireNextImage();
         m_GraphicsListPools[GetCurrentFrame()]->Reset();
     }
 
     void Renderer::End()
     {
-        m_SwapChain.Present();
-        DestroyQueue();
+        m_Swapchain.Present();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +70,7 @@ namespace Rapid
     ////////////////////////////////////////////////////////////////////////////////////
     void Renderer::Resize(uint32_t width, uint32_t height)
     {
-        m_SwapChain.Resize(width, height);
+        m_Swapchain.Resize(width, height);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -96,9 +97,7 @@ namespace Rapid
     {
         switch (type)
         {
-        case Obsidian::DeviceMessageType::Trace:
-            // Note: We don't want to get the Obsidian Trace messages
-            break;
+        // Note: We don't want to get the Obsidian Trace messages
         case Obsidian::DeviceMessageType::Info:
             Logger::Info("(OBSIDIAN) - {0}", message);
             break;
@@ -111,6 +110,11 @@ namespace Rapid
 
         default:
             break;
+        }
+
+        if (type == Obsidian::DeviceMessageType::Error)
+        {
+            return;
         }
     }
 
