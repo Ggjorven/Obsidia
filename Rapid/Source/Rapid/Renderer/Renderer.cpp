@@ -32,7 +32,7 @@ namespace Rapid
         {
             m_GraphicsListPools[i].Construct(m_Swapchain, Obsidian::CommandListPoolSpecification()
                 .SetQueue(Obsidian::CommandQueue::Graphics)
-                .SetDebugName("CommandPool for Graphics CommandLists")
+                .SetDebugName(std::format("CommandPool({0}) for Graphics CommandLists", i))
             );
         }
     }
@@ -110,11 +110,6 @@ namespace Rapid
 
         default:
             break;
-        }
-
-        if (type == Obsidian::DeviceMessageType::Error)
-        {
-            return;
         }
     }
 

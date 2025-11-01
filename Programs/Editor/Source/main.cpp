@@ -52,10 +52,10 @@ int main(const int argc, const char* argv[])
 		w.PollEvents();
 
 		// Update
-		float currentTime = w.GetTime();
-		float deltaTime = currentTime - lastTime;
-		project.OnUpdate(deltaTime);
-		lastTime = currentTime;
+		//float currentTime = w.GetTime();
+		//float deltaTime = currentTime - lastTime;
+		//project.OnUpdate(deltaTime);
+		//lastTime = currentTime;
 		 
 		// Render
 		renderer.Render(project);

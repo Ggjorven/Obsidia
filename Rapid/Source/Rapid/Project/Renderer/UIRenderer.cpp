@@ -36,7 +36,7 @@ namespace Rapid::Project
         for (uint8_t i = 0; i < Obsidian::Information::FramesInFlight; i++)
             m_Renderpass.CreateFramebuffer(Obsidian::FramebufferSpecification()
                 .SetColourAttachment(Obsidian::FramebufferAttachment()
-                    .SetImage(*images[0])
+                    .SetImage(*images[i])
                 )
             );
     }

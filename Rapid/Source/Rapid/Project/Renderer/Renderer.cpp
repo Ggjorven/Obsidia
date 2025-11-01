@@ -17,10 +17,10 @@ namespace Rapid::Project
    	Renderer::Renderer(Window& target)
         : m_TargetWindow(target)
     {
-        // Create a span of swapchain images and
+        // Create a span of swapchain images
         std::array<Obsidian::Image*, Obsidian::Information::FramesInFlight> images = { };
         for (uint8_t i = 0; i < Obsidian::Information::FramesInFlight; i++)
-            images[i] = &GetInternalRenderer().GetSwapChain().GetImage(i);
+            images[i] = &GetInternalRenderer().GetSwapchain().GetImage(i);
 
         m_2DRenderer.Construct(GetInternalRenderer(), std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight>(images));
         m_3DRenderer.Construct(GetInternalRenderer(), std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight>(images));
@@ -32,7 +32,7 @@ namespace Rapid::Project
     {
         // Create target images
         {
-            Obsidian::ImageSpecification imageSpec = GetInternalRenderer().GetSwapChain().GetImage(0).GetSpecification();
+            Obsidian::ImageSpecification imageSpec = GetInternalRenderer().GetSwapchain().GetImage(0).GetSpecification();
             imageSpec.SetWidthAndHeight(projectWidth, projectHeight);
             imageSpec.SetIsShaderResource(true);
             imageSpec.SetIsRenderTarget(true);
@@ -79,25 +79,22 @@ namespace Rapid::Project
 
     uint8_t Renderer::Render(const Scene2D& scene)
     {
-        static uint32_t frame = 0;
-        Logger::Trace("Frame: {0}", frame++);
-
         GetInternalRenderer().Begin();
         m_2DRenderer->Render(scene, !m_Images.has_value(), false);
         m_UIRenderer->Render(m_2DRenderer->GetCommandList(GetCurrentFrame()), false, !m_Images.has_value());
         GetInternalRenderer().End();
 
-        return GetInternalRenderer().GetSwapChain().GetAcquiredImage();
+        return GetInternalRenderer().GetSwapchain().GetAcquiredImage();
     }
 
     uint8_t Renderer::Render(const Scene3D& scene)
     {
-        //GetInternalRenderer().Begin();
+        GetInternalRenderer().Begin();
         m_3DRenderer->Render(scene, !m_Images.has_value(), false);
         m_UIRenderer->Render(m_3DRenderer->GetCommandList(GetCurrentFrame()), false, !m_Images.has_value());
-        //GetInternalRenderer().End();
+        GetInternalRenderer().End();
 
-        return GetInternalRenderer().GetSwapChain().GetAcquiredImage();
+        return GetInternalRenderer().GetSwapchain().GetAcquiredImage();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -132,7 +129,7 @@ namespace Rapid::Project
         }
         else
         {
-            return m_TargetWindow.m_Renderer.GetSwapChain().GetImage(0).GetSpecification().Width;
+            return m_TargetWindow.m_Renderer.GetSwapchain().GetImage(0).GetSpecification().Width;
         }
     }
 
@@ -144,7 +141,7 @@ namespace Rapid::Project
         }
         else
         {
-            return m_TargetWindow.m_Renderer.GetSwapChain().GetImage(0).GetSpecification().Height;
+            return m_TargetWindow.m_Renderer.GetSwapchain().GetImage(0).GetSpecification().Height;
         }
     }
 
@@ -159,7 +156,7 @@ namespace Rapid::Project
         {
             // Note: Return swapchain image
             RP_ASSERT((frame < Obsidian::Information::FramesInFlight), "Frame exceeds image count.");
-            return m_TargetWindow.m_Renderer.GetSwapChain().GetImage(frame);
+            return m_TargetWindow.m_Renderer.GetSwapchain().GetImage(frame);
         }
     }
 
