@@ -18,13 +18,13 @@ namespace Rapid::Project
         : m_TargetWindow(target)
     {
         // Create a span of swapchain images
-        std::array<Obsidian::Image*, Obsidian::Information::FramesInFlight> images = { };
-        for (uint8_t i = 0; i < Obsidian::Information::FramesInFlight; i++)
-            images[i] = &GetInternalRenderer().GetSwapchain().GetImage(i);
+        std::vector<Obsidian::Image*> images = { };
+        for (uint8_t i = 0; i < GetInternalRenderer().GetSwapchain().GetImageCount(); i++)
+            images.push_back(&GetInternalRenderer().GetSwapchain().GetImage(i));
 
-        m_2DRenderer.Construct(GetInternalRenderer(), std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight>(images));
-        m_3DRenderer.Construct(GetInternalRenderer(), std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight>(images));
-        m_UIRenderer.Construct(GetInternalRenderer(), std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight>(images));
+        m_2DRenderer.Construct(GetInternalRenderer(), std::span<Obsidian::Image*>(images));
+        m_3DRenderer.Construct(GetInternalRenderer(), std::span<Obsidian::Image*>(images));
+        m_UIRenderer.Construct(GetInternalRenderer(), std::span<Obsidian::Image*>(images));
     } 
 
 	Renderer::Renderer(Window& target, uint32_t projectWidth, uint32_t projectHeight)
@@ -44,14 +44,14 @@ namespace Rapid::Project
             }
         }
 
-        // Create a span of images
-        std::array<Obsidian::Image*, Obsidian::Information::FramesInFlight> images = { };
-        for (uint8_t i = 0; i < Obsidian::Information::FramesInFlight; i++)
-            images[i] = &m_Images.value()[i].Get();
+        // Create a span of swapchain images
+        std::vector<Obsidian::Image*> images = { };
+        for (uint8_t i = 0; i < GetInternalRenderer().GetSwapchain().GetImageCount(); i++)
+            images.push_back(&m_Images.value()[i].Get());
 
-        m_2DRenderer.Construct(GetInternalRenderer(), std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight>(images));
-        m_3DRenderer.Construct(GetInternalRenderer(), std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight>(images));
-        m_UIRenderer.Construct(GetInternalRenderer(), std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight>(images));
+        m_2DRenderer.Construct(GetInternalRenderer(), std::span<Obsidian::Image*>(images));
+        m_3DRenderer.Construct(GetInternalRenderer(), std::span<Obsidian::Image*>(images));
+        m_UIRenderer.Construct(GetInternalRenderer(), std::span<Obsidian::Image*>(images));
     }
 
     Renderer::~Renderer()

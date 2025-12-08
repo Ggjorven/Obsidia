@@ -12,7 +12,7 @@ namespace Rapid::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // Constructor & Destructor
     ////////////////////////////////////////////////////////////////////////////////////
-    UIRenderer::UIRenderer(Rapid::Renderer& internalRenderer, std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight> images)
+    UIRenderer::UIRenderer(Rapid::Renderer& internalRenderer, std::span<Obsidian::Image*> images)
         : m_InternalRenderer(internalRenderer), m_Renderpass(m_InternalRenderer.GetDevice(), Obsidian::RenderpassSpecification()
             .SetBindpoint(Obsidian::PipelineBindpoint::Graphics)
 
@@ -33,7 +33,7 @@ namespace Rapid::Project
             );
 
         // Create framebuffers for renderpass
-        for (uint8_t i = 0; i < Obsidian::Information::FramesInFlight; i++)
+        for (uint8_t i = 0; i < images.size(); i++)
             m_Renderpass.CreateFramebuffer(Obsidian::FramebufferSpecification()
                 .SetColourAttachment(Obsidian::FramebufferAttachment()
                     .SetImage(*images[i])

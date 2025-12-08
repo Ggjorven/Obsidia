@@ -27,7 +27,7 @@ namespace Rapid::Project
     {
     public:
         // Constructor & Destructor
-        Scene3DRenderer(Rapid::Renderer& internalRenderer, std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight> images);
+        Scene3DRenderer(Rapid::Renderer& internalRenderer, std::span<Obsidian::Image*> images);
         ~Scene3DRenderer();
 
         // Methods

@@ -63,7 +63,7 @@ namespace Rapid::Project
         Window& m_TargetWindow;
 
         // Note: This is only set when the constructor with width and height are used.
-        std::optional<std::array<Nano::Memory::DeferredConstruct<Obsidian::Image, true>, Obsidian::Information::FramesInFlight>> m_Images = { };
+        std::optional<std::array<Nano::Memory::DeferredConstruct<Obsidian::Image, true>, Obsidian::Information::MaxImageCount>> m_Images = { };
 
         Nano::Memory::DeferredConstruct<Scene2DRenderer> m_2DRenderer = {};
         Nano::Memory::DeferredConstruct<Scene3DRenderer> m_3DRenderer = {};

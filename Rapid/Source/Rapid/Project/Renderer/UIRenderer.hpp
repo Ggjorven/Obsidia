@@ -24,7 +24,7 @@ namespace Rapid::Project
     {
     public:
         // Constructor & Destructor
-        UIRenderer(Rapid::Renderer& internalRenderer, std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight> images);
+        UIRenderer(Rapid::Renderer& internalRenderer, std::span<Obsidian::Image*> images);
         ~UIRenderer();
 
         // Methods

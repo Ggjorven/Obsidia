@@ -14,7 +14,7 @@ namespace Rapid::Project
     ////////////////////////////////////////////////////////////////////////////////////
     // Constructor & Destructor
     ////////////////////////////////////////////////////////////////////////////////////
-    Scene2DRenderer::Scene2DRenderer(Rapid::Renderer& internalRenderer, std::span<Obsidian::Image*, Obsidian::Information::FramesInFlight> images)
+    Scene2DRenderer::Scene2DRenderer(Rapid::Renderer& internalRenderer, std::span<Obsidian::Image*> images)
         : m_InternalRenderer(internalRenderer), m_Renderpass(internalRenderer.GetDevice(), Obsidian::RenderpassSpecification()
             .SetBindpoint(Obsidian::PipelineBindpoint::Graphics)
 
@@ -35,7 +35,7 @@ namespace Rapid::Project
             );
 
         // Create framebuffers for renderpass
-        for (uint8_t i = 0; i < Obsidian::Information::FramesInFlight; i++)
+        for (uint8_t i = 0; i < images.size(); i++)
             m_Renderpass.CreateFramebuffer(Obsidian::FramebufferSpecification()
                 .SetColourAttachment(Obsidian::FramebufferAttachment()
                     .SetImage(*images[i])
